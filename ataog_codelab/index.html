@@ -8,7 +8,7 @@
   <meta charset="UTF-8">
   <title>Android Things x Actions on Google</title>
   <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-  <link rel="import" href="../bower_components/google-codelab-elements/google-codelab.html">
+  <link rel="import" href="../elements/codelab.html">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
   <style is="custom-style">
     body {
@@ -20,7 +20,7 @@
 </head>
 <body unresolved class="fullbleed">
 
-  <google-codelab title="Android Things x Actions on Google"
+  <google-codelab title="Android Things & Actions on Google"
                   environment="web"
                   feedback-link="">
     
@@ -157,7 +157,7 @@ Would you like to set up Wi-Fi on this device? (y/n)</pre>
 <ul>
 <li>최소 API Level은 25 (7.1.1 Nougat)으로 선택합니다.</li>
 </ul>
-<p><img style="max-width: 479.50px" src="img/f64c455f5cafdf15.png"></p>
+<p><img style="max-width: 479.50px" src="img/ab857d8e79c2077c.png"></p>
 <p>3. ‘Android Things Empty Activity&#39;를 선택하고 프로젝트를 생성합니다. 생성된 프로젝트는 메니페스트 파일, 리소스, 엑티비티등 일반적인 Android 앱과 동일한 구성요소로 이루어집니다.</p>
 <p>4. 프로젝트를 빌드 한 후 실행합니다. 아래와 같은 <code>IOT_LAUNCHER</code> 인텐트에 응답하는 앱은 하나 밖에 설치될 수 없다는 경고창이 표시될 수 있습니다. ‘OK&#39; 버튼을 눌러 기존 앱을 삭제하고 샘플 앱을 설치합니다.</p>
 <p><img style="max-width: 348.40px" src="img/a10a831a3c36afcc.png"></p>
@@ -235,7 +235,7 @@ AudioDeviceInfo audioOutputDevice = findAudioDevice(AudioManager.GET_DEVICES_OUT
 <aside class="special"><p>만일 더이상 새로운 프로젝트를 생성 할 수 없는 경우에는, 기존 프로젝트를 선택해 Assistant API 설정을 추가해도 좋습니다.</p>
 </aside>
 <p><a href="https://console.cloud.google.com/apis" target="_blank">API 대시보드</a>로 이동하여 ‘API 사용 및 설정&#39; 버튼을 클릭한 후 API 라이브러리 검색 창에서 ‘<em>Google Assistant API</em>&#39; 를 검색 합니다. ‘<em>사용 설정</em>&#39; 버튼을 클릭하여 API 기능을 활성화합니다. </p>
-<p><img style="max-width: 507.34px" src="img/774cfe71b4fb0c7f.png"></p>
+<p><img style="max-width: 507.34px" src="img/ca337b89eb060975.png"></p>
 <p>3. 사용자 인증 정보를 위해 새로운 <a href="https://console.developers.google.com/apis/credentials/oauthclient" target="_blank">OAuth Client ID</a>를 생성합니다. </p>
 <ul>
 <li>애플리케이션 유형에서 기타를 선택합니다.</li>
@@ -384,7 +384,7 @@ No traits</pre>
 <p>어시스턴트를 위한 앱은 기존 모바일 앱과 다르게 대화형 UX를 통해 사용자와 상호작용합니다. 이는 음성만을 말하는 것은 아니며, Google 어시스턴트가 동작하는 환경에 따라 음성 뿐만 아니라 이미지, 텍스트, 동영상등 다양한 요소를 포함할 수 있습니다.</p>
 <p>AoG를 사용해 어시스턴트 앱을 만드는 것은 일반적인 매시업과 유사합니다. Google 어시스턴트 연동을 위한 <a href="https://developers.google.com/actions/dialogflow/webhook" target="_blank">Webhook 포맷</a>이 정의되어 있고, 쉽게 사용할 수 있는 <a href="https://developers.google.com/actions/reference/nodejs/AssistantApp" target="_blank">Node.js 클라이언트 라이브러리</a>가 제공됩니다. 빠른 개발을 위해 챗봇 빌더 솔루션인 Dialogflow와 쉽게 연동할 수 있는 기능도 함께 제공하고 있습니다. </p>
 <p>어시스턴트 앱은 다음과 같은 과정으로 동작합니다.</p>
-<p><img style="max-width: 624.00px" src="img/c0fb8b7a96649f64.png"></p>
+<p><img style="max-width: 624.00px" src="img/a4e6c557571c400.png"></p>
 <ol type="1" start="1">
 <li>AoG 콘솔에 자신의 앱 및 액션을 등록합니다. </li>
 <li>사용자 요청을 전달받을 수 있는 서버를 만듭니다. 해당 서버 URL을 Webhook 형태로 등록합니다. 사용자가 Google 어시스턴트를 통해 앱을 호출하면 해당 서버로 요청이 전송됩니다.</li>
@@ -443,7 +443,7 @@ No traits</pre>
 <h2><strong>AoG와 Dialogflow 연동</strong></h2>
 <p>다음으로 만들어본 간단한 챗봇 로직을 AoG와 연동해 Google 어시스턴트 위에서 동작하도록 만들어 봅니다. Dialogflow 메뉴의 <strong>Integrations</strong> 항목을 선택합니다.</p>
 <p><strong>Google Assistant</strong>를 선택합니다. 연동을 위해 몇 가지 기본적인 설정을 할 수 있는 팝업 창이 표시됩니다. 빠른 개발을 위해 아래와 같이 <strong>‘Auto-preview changes&#39; </strong>옵션을 활성화 한 후, <strong>‘TEST&#39;</strong> 버튼을 클릭합니다. </p>
-<p><img style="max-width: 442.50px" src="img/e4e9be01c49dd5d4.png"></p>
+<p><img style="max-width: 442.50px" src="img/e90055d45ff75a9a.png"></p>
 <p>처음에 설정한 AoG 프로젝트의 시뮬레이터 페이지가 열립니다. 시뮬레이터의 언어 설정을 아래와 같이 한국어로 변경합니다.</p>
 <p><img style="max-width: 448.50px" src="img/2dbbc26ef393fb.png"><br><br>다음으로 앞서 만든 테스트 앱을 불러 옵니다. 테스트 앱의 이름을 정확히 이야기 하거나 ~~한테 말하기 등의 <a href="https://developers.google.com/actions/discovery/explicit" target="_blank">발화명령</a>을 통해 AoG앱을 시작할 수 있습니다. 현재 Google 어시스턴트는 AoG앱을 호출할 때 다음 네 가지 종류의 발화명령을 지원합니다.</p>
 <ul>
@@ -577,10 +577,10 @@ No traits</pre>
 <p><img style="max-width: 381.50px" src="img/ff50c6c9c1786581.png"></p>
 <h2><strong>Cloud 함수 에서 Firestore 데이터 가져오기</strong></h2>
 <p>웹 프론트뿐만아니라 Cloud 함수 코드 내에서 Firestore 문서 데이터를 가져올 수 있습니다. 우선 터미널 혹은 쉘을 실행합니다. Cloud 함수 작업을 진행했던 <code>functions</code> 폴더로 이동해 <code>node.js</code> 용 클라이언트 SDK를 설치합니다. 참고로 현재 5.X.X 대의 SDK 최신 버전은 5.9.0 버전으로 해당 버전이 설치됩니다. </p>
-<pre>npm install --save firebase-admin@^5.4.0</pre>
+<pre>npm install --save firebase-admin@^5.9.0</pre>
 <p>폴더내의 <code>package.json</code> 파일을 확인해 프로젝트 의존성 설정에 <code>firebase-admin</code>이 올바르게 추가되어 있는지 확인합니다.</p>
 <p><img style="max-width: 307.86px" src="img/227a331addec50a1.png"></p>
-<aside class="special"><p>5.4.0 미만 버전 <code>firebase-admin</code> SDK가 설치되어있는 기능이 정상적으로 동작하지 않을 수 있습니다. 꼭 업데이트 해주세요!</p>
+<aside class="special"><p>5.8.0 미만 버전 <code>firebase-admin</code> SDK가 설치되어있는 기능이 정상적으로 동작하지 않을 수 있습니다. 꼭 업데이트 해주세요!</p>
 </aside>
 <p>다음으로  <code>index.js</code> 파일을 수정 해  Firestore의 데이터를 불러오는 코드를 추가합니다.  우선 해당 파일을 열고 <code>firebase-admin</code> 라이브러리를 불러오는 코드를 추가합니다. </p>
 <pre><code>// Cloud Functions for Firebase library
