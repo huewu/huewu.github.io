@@ -1,0 +1,832 @@
+
+<!doctype html>
+
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta name="theme-color" content="#4F7DC9">
+  <meta charset="UTF-8">
+  <title>Android Things x Actions on Google</title>
+  <script src="../../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../elements/codelab.html">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
+  <style is="custom-style">
+    body {
+      font-family: "Roboto",sans-serif;
+      background: var(--google-codelab-background, --paper-grey-300);
+    }
+  </style>
+  
+</head>
+<body unresolved class="fullbleed">
+
+  <google-codelab title="Android Things x Actions on Google"
+                  environment="web"
+                  feedback-link="">
+    
+      <google-codelab-step label="Android Things 코드랩 소개" duration="0">
+        <aside class="special"><p>이 코드랩 자료는 <a href="https://developer.android.com/things/hardware/imx7d.html" target="_blank">NXP iMX7D Android Things 개발 보드</a>와 <a href="https://developers.google.com/assistant/sdk/reference/rpc/google.assistant.embedded.v1alpha2" target="_blank">Google Assistant Service v1alpha2</a> 버전 API를 기반으로 작성되었습니다. 어시스턴트 서비스 API는 아직 알파 단계로, 코드랩에서 언급된 내용 중 많은 부분이 앞으로 변경 될 수 있습니다.</p>
+</aside>
+<h2><strong>무엇을 만들게 되나요?</strong></h2>
+<table>
+<tr><td colspan="1" rowspan="1"><ul>
+<li>Android Things Kit를 조립하고 개발 환경을 구성합니다. </li>
+<li>Android Things 용 Hello World 앱을 만들어 봅니다.</li>
+<li>Android Things 위에 Google Assistant Service를 올려 AI 스피커를 만들어 봅니다.</li>
+<li>Actions on Google 플랫폼 위에 DialogFlow를 연동, 간단한 어시스턴트 앱을 만들어 봅니다.</li>
+<li>Firebase 용 Cloud 함수 및 Firestore 기능을 활용해 어시스턴트 앱의 기능을 확장합니다. </li>
+<li>다양한 디바이스위에서 어시스턴트 앱을 테스트합니다.</li>
+</ul>
+</td><td colspan="1" rowspan="1"><p><img style="max-width: 286.00px" src="img/a3abd7b1a0c817a1.png"></p>
+</td></tr>
+</table>
+<h2>코드랩 진행을 위해 필요한 물품</h2>
+<ul>
+<li>개발을 위한 노트북 (OSX, Windows or Linux)</li>
+<li>3.5mm 오디오잭과 연결되는 스피커 혹은 이어폰</li>
+<li>USB 마이크 (Android Things Kit과 함께 제공해드립니다.)</li>
+<li>맥북(신형)을 사용하는 경우 USB-A 사용 및 전원 공급을 위한 USB 허브</li>
+<li>여러분만의 재미있는 챗봇 아이디어</li>
+</ul>
+<p>개발 노트북에는 다음과 같은 개발 도구가 설치되어야 합니다.</p>
+<ul>
+<li><a href="https://developer.android.com/studio/index.html?hl=ko" target="_blank">Android Studio 3.0 이상 버전</a> 및 Android 7.0 이상 SDK와 SDK 도구</li>
+<li><a href="https://nodejs.org/en/" target="_blank">Node.js</a></li>
+<li><a href="https://firebase.google.com/docs/cli/?hl=ko" target="_blank">Firebase CLI</a></li>
+<li><a href="https://www.python.org/downloads/" target="_blank">Python 3</a></li>
+</ul>
+<aside class="warning"><p>이 코드랩은 Android Things 와 Actions on Google의 기능을 소개하기 위한 목적으로 작성되었습니다. 포함된 코드와 프로젝트 구성은 간단한 데모 용도로 고안되었습니다. 실제 제품에서 사용하기 위한 용도로는 적당하지 않습니다.</p>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Android Things Kit 조립" duration="0">
+        <h2>구성품 확인</h2>
+<p>Android Things Pico Pro Maker Kit 박스를 열고 다음 부품이 포함되어 있는지 확인합니다. 참고로 코드랩에 사용되는 키트에는 레인보우 햇 관련 부품(2, 3)은 포함되어 있지 않습니다. </p>
+<table>
+<tr><td colspan="1" rowspan="6"><p>(1) Pico i.MX7Dual 보드</p>
+<p>(4) USB-C 케이블</p>
+<p>(5) Wifi 안테나</p>
+<p>(6) 안테나 연장 케이블</p>
+<p>(9) 5&#34; 멀티터치 디스플레이</p>
+<p>(10) 디스플레이 연결 케이블</p>
+</td><td colspan="1" rowspan="6"><p><img style="max-width: 492.50px" src="img/60ff82b035ffff4b.png"></p>
+</td></tr>
+<tr></tr>
+<tr></tr>
+<tr></tr>
+<tr></tr>
+<tr></tr>
+</table>
+<h2>Wifi 안테나 연결하기</h2>
+<p><img style="max-width: 361.50px" src="img/f629d6e28accb589.png"></p>
+<p>① 안테나 연장 케이블을 Wifi 안테나에 연결 합니다. </p>
+<p><img style="max-width: 364.50px" src="img/e2447c86bb53df94.png"></p>
+<p>② 안테나 연장 케이블 한 쪽 끝의 동그란 안테나 핀을 개발 보드 단자에 연결합니다. 단자 위치는 위 사진을 참고하세요. 구멍과 잘 맞게 안테나 단자를 위치시킨 후 ‘딸깍&#39; 소리가 날 때까지 힘을 줘 누릅니다.</p>
+<h2><strong>멀티터치 디스플레이 연결하기</strong></h2>
+<p><img style="max-width: 500.00px" src="img/6101971a296b286c.png"></p>
+<p>① 개발 보드를 뒤집습니다. 위 사진을 참조하여 보드 중간의 흰색 단자 위치를 확인합니다. 흰색 단자 끝부분의 검은색 클립을 위로 젖혀 세웁니다.</p>
+<p><img style="max-width: 500.00px" src="img/75ee8b4ab6dcd4d8.png"></p>
+<p>② 멀티터치 디스플레이를 뒤집습니다. 위 사진을 참조하여 평평한 리본 케이블을 확인합니다. 케이블 고정을 위해 테이프가 붙어 있는 경우 조심스럽게 테이프를 제거합니다. 리본 케이블을 흰색 단자에 꽂고, 검은색 클립을 아래로 내려 고정합니다. 케이블이 잘 고정되었는지 확인합니다.</p>
+<p><img style="max-width: 500.00px" src="img/1f2a8b28daa662d2.png"></p>
+<p>③ 디스플레이 연결을 위해 6선 케이블을 사용합니다. 위 사진처럼 개발 보드 상단의 단자에 케이블을 연결 합니다. 케이블은 앞면과 뒷면이 있으며 한쪽 방향으로만 연결됩니다. 케이블의 금색 부분이 위를 향한 상태로 연결되어야 합니다. </p>
+<p><img style="max-width: 500.00px" src="img/2e928ae6452638c8.png"></p>
+<p>④ 개발보드와 디스플레이를 뒤집습니다. 6선 케이블의 다른 쪽 끝을 디스플레이와 연결합니다. 연결을 위해 케이블을 조금 꼬아야 할 수 있습니다.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Android Things 시스템 이미지 설치" duration="0">
+        <p><img style="max-width: 359.00px" src="img/d8a7356125ce708e.png"></p>
+<p>동봉된 USB-C to USB-A 케이블을 이용해 개발보드와 노트북을 연결합니다. 위 그림의 1번 단자에 USB-C 케이블을 연결합니다. 반대쪽 USB-A 케이블은 노트북에 연결됩니다. </p>
+<aside class="warning"><p>USB-C to USB-C 케이블로 연결되는 경우, 개발 보드에 전원 공급이 올바르게 이루어지지 않을 수 있습니다. 이런 경우 USB 전원 허브를 사용해야합니다. </p>
+</aside>
+<p>다음으로 Android 시스템 이미지를 다운로드해 개발보드에 설치합니다.</p>
+<p><img style="max-width: 415.50px" src="img/1f83ba57e29d8921.png"></p>
+<p>1. <a href="https://partner.android.com/things/console/#/tools" target="_blank">Android Things Console</a>에 접속합니다.</p>
+<p>2. 화면 왼쪽 상단의 햄버거 버튼을 클릭해 메뉴바를 열고 Tools 메뉴를 선택합니다. DOWNLOAD 버튼을 눌러 Setup Utility를 다운로드 합니다.</p>
+<p>3. 압축 파일을 풀고 Setup Utility를 실행합니다.</p>
+<ul>
+<li>Windows의 경우, 실행 파일(<code>android-things-setup-utility-windows.exe</code>)을 더블클릭합니다.</li>
+<li>Mac 혹은 Linux의 경우, 터미널에서 직접 유틸리티를 실행할 수 있습니다. </li>
+</ul>
+<pre># Mac
+$ ~/Downloads/android-things-setup-utility/android-things-setup-utility-macos
+
+# Linux
+$ ~/Downloads/android-things-setup-utility/android-things-setup-utility-linux</pre>
+<p>4. 터미널에 시스템 이미지 설치 관련 메뉴가 표시됩니다. ‘Install Android Things and optionally set up Wi-Fi&#39; 옵션을 선택합니다. </p>
+<pre>What do you want to do?
+1 - Install Android Things and optionally set up Wi-Fi
+2 - Set up Wi-Fi on an existing Android Things device</pre>
+<p>5. 하드웨어를 선택하라는 메뉴가 표시되면 ‘NXP Pico i.MX7D&#39;를 선택합니다.</p>
+<pre>What hardware are you using?
+1 - Raspberry Pi 3
+2 - NXP Pico i.MX7D
+3 - NXP Pico i.MX6UL</pre>
+<p>6. 하드웨어에 사용할 이미지를 선택하는 메뉴가 표시됩니다. ‘Default image&#39;를 선택하면 해당 이미지를 다운로드하기 시작합니다.</p>
+<pre>Do you want to use the default image or a custom image?
+1 - Default image: Used for development purposes. No access to the Android
+Things Console features such as metrics, crash reports, and OTA updates.
+2 - Custom image: Provide your own image, enter the path to an image generated
+and from the Android Things Console.</pre>
+<p>7. 이미지 다운로드가 완료되면 다음과 같이 기기를 컴퓨터에 연결하라는 메시지가 표시됩니다. 앞의 절차에서 이미 컴퓨터와 기기를 연결하였으므로, 엔터 키를 눌러 설치를 진행합니다. 설치가 완료되기까지 약 5분까지 소요될 수 있습니다.</p>
+<pre>Connect your device to this computer:
+The USB cable should plug into your board&#39;s USB-C port. If your computer also
+has USB-C ports like the more recent MacBooks, you will need to use a USB hub.
+Otherwise the board won&#39;t power on correctly.
+
+Once connected, press [Enter] to install Android Things on the device...</pre>
+<p>8. 설치가 완료되면 다음과 같이 Wi-Fi 네트워크를 설정하는 메뉴가 표시됩니다. Android Things가 부팅된 후 UI를 통해 직접 설정할 것이므로 ‘n&#39;을 눌러 이 절차를 건너뜁니다.</p>
+<pre>Successfully flashed your imx7d.
+Successfully flashed Android Things...
+Would you like to set up Wi-Fi on this device? (y/n)</pre>
+<p>9. Android Things 부팅이 완료되면 다음과 같은 화면이 표시됩니다.</p>
+<p><img style="max-width: 421.82px" src="img/a5473c4912d27880.png"></p>
+<p>10. ‘CONNECT TO NETWORK&#39; 메뉴에서  Wi-Fi 기능을 켠 후 무선 네트워크를 설정합니다. Wi-Fi를 켠 후 ‘GoogleGuest&#39; 혹은 ‘GoogleGuest-Legacy&#39; SSID로 접속합니다 별도의 비밀번호는 없습니다.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Hello Android Things!" duration="0">
+        <p>Android Studio 3.0 이상 버전과 최신 Android SDK를 사용해 Android Things용 애플리케이션을 개발할 수 있습니다. 기존 Android 앱 개발 경험을 그대로 활용할 수 있습니다.</p>
+<h2><strong>Android Things 프로젝트 생성</strong></h2>
+<p>1. Android Studio에서 ‘<em>File &gt; New &gt; New Project</em>&#39; 메뉴를 선택해 새로운 프로젝트를 생성합니다. </p>
+<p>2. Target Android Device 설정 화면에서 아래와 같이 Android Things를 선택합니다.</p>
+<ul>
+<li>최소 API Level은 25 (7.1.1 Nougat)으로 선택합니다.</li>
+</ul>
+<p><img style="max-width: 479.50px" src="img/f64c455f5cafdf15.png"></p>
+<p>3. ‘Android Things Empty Activity&#39;를 선택하고 프로젝트를 생성합니다. 생성된 프로젝트는 메니페스트 파일, 리소스, 엑티비티등 일반적인 Android 앱과 동일한 구성요소로 이루어집니다.</p>
+<p>4. 프로젝트를 빌드 한 후 실행합니다. 아래와 같은 <code>IOT_LAUNCHER</code> 인텐트에 응답하는 앱은 하나 밖에 설치될 수 없다는 경고창이 표시될 수 있습니다. ‘OK&#39; 버튼을 눌러 기존 앱을 삭제하고 샘플 앱을 설치합니다.</p>
+<p><img style="max-width: 348.40px" src="img/a10a831a3c36afcc.png"></p>
+<aside class="special"><p>Android Things 플랫폼은 원칙적으로 하나의 앱을 지원하도록 설계되어 있습니다. Android Things 개발 보드 상에 개발자는 하나의 앱만 설치할 수 있고, 설치된 앱은 하드웨어가 시작될 때 항상 자동 실행됩니다.</p>
+</aside>
+<p>5. 다음과 같이 Android Things 위에서 Hello World 앱이 실행됩니다..이제 Android Things 앱 개발을 위한  환경이 구성되었습니다.</p>
+<p><img style="max-width: 451.50px" src="img/90b6fc163d4f0ce5.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Google 어시스턴트 서비스 설치" duration="0">
+        <p>개발자는 Google 어시스턴트 서비스를 통해 자신의 디바이스 혹은 앱에 Google 어시스턴트 기능을 통합할 수 있습니다. Android Things를 비롯하여 다양한 환경에서 Google 어시스턴트 서비스를 설치한 후 제공되는 엔드 포인트로 사용자 요청을 스트리밍 하면 Google 어시스턴트에서 보내는 응답을 수신할 수 있습니다.</p>
+<p>이번 코드랩 단계에서는 앞서 설정한 Android Things 위에 Google 어시스턴트 서비스를 포함하고 있는 샘플 앱을 설치해봅니다. 아래 링크를 클릭해 샘플 코드를 내려받을 있습니다.</p>
+<p><a href="https://github.com/androidthings/sample-googleassistant/archive/master.zip" target="_blank"><paper-button class="colored" raised><iron-icon icon="file-download"></iron-icon>DOWNLOAD SOURCE CODE</paper-button></a></p>
+<p>혹은 샘플 코드 저장소에서 직접 코드를 내려받을 수 있습니다.</p>
+<pre>$ git clone https://github.com/androidthings/sample-googleassistant.git</pre>
+<p>압축파일을 풀고, Android Studio에서 <code>‘New &gt; Import Proj</code>ect&#39; 메뉴를 통해 샘플 프로젝트를 불러옵니다. 프로젝트를 빌드하면 다음과 같이 <code>credential</code> 리소스를 찾을 수 없다는 오류가 발생합니다. </p>
+<p><img style="max-width: 588.50px" src="img/116a93b1356208b1.png"></p>
+<p>겁먹지 마세요. 다음 단계에서 몇 가지 추가적인 설정을 완료하면  Google 어시스턴트 서비스를 사용 할 수 있습니다.</p>
+<h2><strong>오디오 / 마이크 설정</strong></h2>
+<p>사용자 음성 요청을 듣고 Google 어시스턴트 응답을 재생하기 위해 마이크와 스피커가 필요합니다. Android Thing 개발 보드와 함께 배부된 USB 마이크를 USB-A 단자에 연결하고, 이어폰은 3.5mm 오디오 잭에 연결합니다.</p>
+<p><img style="max-width: 460.50px" src="img/830a549d2b075bb7.png"></p>
+<p>연결된 마이크 / 스피커를 올바르게 인식할 수 있도록, 샘플 코드의 AssistantActivity.java에서 Audio 디바이스를 설정 하는 부분을 다음과 같이 수정합니다.</p>
+<p>수정 전:</p>
+<pre><code>// Audio routing configuration: use default routing.
+AudioDeviceInfo audioInputDevice = null;
+AudioDeviceInfo audioOutputDevice = null;</code></pre>
+<p>수정 후:</p>
+<pre><code>// Audio routing configuration: use default routing.
+AudioDeviceInfo audioInputDevice = findAudioDevice(AudioManager.GET_DEVICES_INPUTS,
+       AudioDeviceInfo.TYPE_USB_DEVICE);
+AudioDeviceInfo audioOutputDevice = findAudioDevice(AudioManager.GET_DEVICES_OUTPUTS,
+       AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);</code></pre>
+<p>추가로 코드의 일부분을 주석처리 합니다. 다운로드 받은 샘플 코드는 하드웨어(Rainbow HAT) 사용을 전제로 작성되어있습니다. 이번 코드랩에서는 해당 하드웨어를 사용하지 않기 때문에, Rainbow HAT 사용에 관련된 다음 코드를 주석 처리합니다. </p>
+<p>수정 전:</p>
+<pre><code>.setConversationCallback(new ConversationCallback() {
+   @Override
+   public void onAudioSample(ByteBuffer audioSample) {
+       if (mLed != null) {
+           try {
+               mDac.setSdMode(Max98357A.SD_MODE_SHUTDOWN);
+               mLed.setValue(false);
+           } catch (IOException e) {
+               Log.e(TAG, &#34;error disabling DAC&#34;, e);
+           }
+       }
+   }</code></pre>
+<p>수정 후:</p>
+<pre><code>.setConversationCallback(new ConversationCallback() {
+   @Override
+   public void onAudioSample(ByteBuffer audioSample) {
+         if (mLed != null) {
+//           try {
+//               mDac.setSdMode(Max98357A.SD_MODE_SHUTDOWN);
+//               mLed.setValue(false);
+//           } catch (IOException e) {
+//               Log.e(TAG, &#34;error disabling DAC&#34;, e);
+//           }
+       }
+   }</code></pre>
+<h2><code>Credential</code><strong> 구성하기</strong></h2>
+<p>Google 어시스턴트는 개인화된 서비스를 제공하며 사용자 인증 과정이 꼭 필요합니다. 사용자 인증을 위해 샘플앱에 포함할 <code>credential</code> 리소스를 생성해봅니다. 몇 가지 단계를 거쳐야합니다. </p>
+<p>1. 사용자 계정의 어시스턴트 기능 활성화를 위해 Google <a href="https://myaccount.google.com/activitycontrols" target="_blank">활동 제어</a> 페이지로 이동하여 다음 활동을 허용 합니다. Google 로그인이 필요합니다.</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p><img style="max-width: 309.64px" src="img/789cd77c8d756f8b.png"></p>
+</td><td colspan="1" rowspan="1"><ul>
+<li>웹 및 앱 활동</li>
+<li>기기 정보</li>
+<li>음성 및 오디오 활동</li>
+</ul>
+</td></tr>
+</table>
+<p>2. <a href="https://console.cloud.google.com" target="_blank">Google Cloud Platform 콘솔</a>에서 Assistant API 기능을 활성화합니다. Cloud 콘솔로 이동하여 새로운 프로젝트를 생성합니다. 이어지는 코드랩 단계에서 Assistant API 기능이 활성화된 Cloud 프로젝트를 이어서 사용하게 됩니다. 프로젝트 이름과 ID를 잘 기억해두면 좋습니다.</p>
+<aside class="special"><p>만일 더이상 새로운 프로젝트를 생성 할 수 없는 경우에는, 기존 프로젝트를 선택해 Assistant API 설정을 추가해도 좋습니다.</p>
+</aside>
+<p><a href="https://console.cloud.google.com/apis" target="_blank">API 대시보드</a>로 이동하여 ‘API 사용 및 설정&#39; 버튼을 클릭한 후 API 라이브러리 검색 창에서 ‘<em>Google Assistant API</em>&#39; 를 검색 합니다. ‘<em>사용 설정</em>&#39; 버튼을 클릭하여 API 기능을 활성화합니다. </p>
+<p><img style="max-width: 507.34px" src="img/774cfe71b4fb0c7f.png"></p>
+<p>3. 사용자 인증 정보를 위해 새로운 <a href="https://console.developers.google.com/apis/credentials/oauthclient" target="_blank">OAuth Client ID</a>를 생성합니다. </p>
+<ul>
+<li>애플리케이션 유형에서 기타를 선택합니다.</li>
+<li>이름 항목에는 원하는 이름을 입력합니다. </li>
+</ul>
+<p>4. 생성된 OAuth Client ID 정보가 목록에 표시됩니다. 화면 오른쪽의 ⬇ 버튼을 클릭하여 Client Secret JSON 파일을 다운로드 합니다. (<code>client_secret_NNNN.json</code> 혹은 <code>client_id.json</code>)</p>
+<h2><code>Credential</code><strong> 생성하기</strong></h2>
+<p>1. 개발 노트북 상에서 <a href="https://www.python.org/downloads/" target="_blank">Python3</a> 를 설치합니다. 코드랩은  파이선 3.6.4 버전 기반으로 테스트되었습니다. 윈도우의 경우 설치 화면에서 ‘<strong>Add Python 3.6</strong>&#39; 옵션을 체크한 후 설치하면 이 후 코드랩 진행이 더 수월합니다. </p>
+<p><img style="max-width: 572.53px" src="img/9040ef2c605bec58.png"></p>
+<p>설치가 완료되면 터미널 혹은 쉘을 열고 파이썬 가상 환경을 시작합니다. </p>
+<p><strong><em>On Mac:</em></strong></p>
+<pre>python3 -m venv env</pre>
+<p><strong><em>On Windows:</em></strong></p>
+<pre>python -m venv env</pre>
+<aside class="special"><p>가상환경을 시작한 후 디렉토리를 이동한 경우, 위 명령어를 다시 실행하면 가상 환경을 다시 설정해줘야 합니다. </p>
+</aside>
+<aside class="special"><p>파이선 가상 환경 설정에 어려움이 있는 경우 코드랩 튜터분들께 도움을 요청하세요! 아니면 OS별 파이선 가상 환경 구축하는 방법을 자세히 정리해둔 <a href="https://tutorial.djangogirls.org/ko/django_installation/#%EA%B0%80%EC%83%81%ED%99%98%EA%B2%BDvirtual-environment" target="_blank">장고걸스 튜토리얼 페이지</a>를 참고하시면 좋습니다.</p>
+</aside>
+<p>다음으로 아래 명령어를 실행해 <a href="https://github.com/GoogleCloudPlatform/google-auth-library-python-oauthlib" target="_blank"><code>google-oauthlib-tool</code></a>을 설치합니다.</p>
+<p><strong><em>On Mac:</em></strong></p>
+<pre>env/bin/python -m pip install --upgrade pip setuptools
+env/bin/pip install --upgrade google-auth-oauthlib[tool]</pre>
+<p><strong><em>On Windows:</em></strong></p>
+<pre>env\Scripts\python -m pip install --upgrade pip setuptools
+env\Scripts\pip install --upgrade google-auth-oauthlib[tool]</pre>
+<p>2. <code>google-oauthlib-tool</code>을 이용해 <code>credentials.json</code> 파일을 생성합니다. 아래 명령어를 참고하세요. 이 때  <strong><code>/path/to/</code></strong><code>client_secret_</code><strong><code>client-id</code></strong><code>.json</code> 부분에는 앞서 내려받은 <code>client_secret_NNNN.json</code> 파일을 지정합니다. </p>
+<p><strong><em>On Mac:</em></strong></p>
+<pre>env/bin/google-oauthlib-tool \
+          --scope https://www.googleapis.com/auth/assistant-sdk-prototype \
+          --save --headless \
+          --client-secrets /path/to/client_secret_client-id.json</pre>
+<p><strong><em>On Windows:</em></strong></p>
+<pre>env\Scripts\google-oauthlib-tool ^
+          --scope https://www.googleapis.com/auth/assistant-sdk-prototype ^
+          --save --headless ^
+          --client-secrets \path\to\client_secret_client-id.json</pre>
+<p>명령이 정상적으로 수행되면 아래와 같이 URL이 표시됩니다. 오류가 발생하는 경우 다운로드 받은 json 파일 경로를 올바르게 지정했는지 확인해봅니다. </p>
+<pre>Please visit this URL to authorize this application: https://...</pre>
+<p>3. URL을 복사해 브라우저에서 페이지를 엽니다. 이전 단계에서 프로젝트를 생성할 때 사용한 Google 계정으로 로그인합니다.  </p>
+<p><img style="max-width: 351.50px" src="img/c53a055fd2c7b4c7.png"></p>
+<p>4. 앱 권한을 요청하는 팝업이 표시됩니다. ‘허용&#39; 버튼을 클릭해 권한을 부여합니다. 권한을 부여하면 새로운 페이지가 열리고 <code>4/XXXX</code>와 같은 인증 코드가 표시됩니다. 인증 코드를 복사해 터미널에 입력합니다. </p>
+<pre>Enter the authorization code:</pre>
+<p>인증이 정상적으로 완료되면 터미널에 다음과 같은 메세지가 출력됩니다. </p>
+<pre>credentials saved: /path/to/.config/google-oauthlib-tool/credentials.json</pre>
+<p>만일 잘못된 인증 코드를 입력하는 경우 <code>InvalidGrantError</code> 등의 오류가 발생할 수 있습니다. 코드 전체를 복사해넣어야합니다. </p>
+<h2><strong>샘플 코드 실행하기</strong></h2>
+<p>샘플 앱을 실행하기 위한 <code>credentials</code> 리소스가 생성되었습니다. 앞서 내려받은 샘플 프로젝트에 <code>raw</code> 타입의 리소스를 저장하기 위한 리소스 폴더를 만들고,  앞서 생성한 <code>credentials.json</code> 파일을 복사해 넣습니다. 샘플 프로젝트가 정상적으로 빌드되는지 확인합니다.</p>
+<p><img style="max-width: 272.18px" src="img/754a79f439d6679f.png"></p>
+<p>리소스 파일이 정상적으로 추가되었다면, 오류없이 앱이 빌드됩니다. 이제 몇 가지 설정만 완료하면 앱을 실행할 수 있습니다 : )</p>
+<aside class="special"><p>아직 앱을 실행할 수는 없습니다. 이어지는 디바이스 등록 과정을 완료하지 않으면, 앱 실행 시 예외가 발생하며 정상적으로 실행되지 않습니다.</p>
+</aside>
+<h2><strong>디바이스 등록</strong></h2>
+<p>우선 Google 어시스턴트에 디바이스 정보를 등록해야합니다. 디바이스 정보에는 고유 식별자, 디바이스 종류, 제조사 정보 등등이 포함될 수 있습니다. 해당 정보는 Google 어시스턴트와 여러분의 디바이스에 연동된 Google Cloud Project에서만 사용됩니다.</p>
+<p>디바이스 등록은 샘플 프로젝트에 포함된 <a href="https://developers.google.com/assistant/sdk/reference/device-registration/device-tool" target="_blank"><code>googlesamples-assistant-devicetool</code></a><code> </code>도구를 사용합니다. 이전 <code>Credentials</code> 파일을 만들 때와 마찬가지로, 아래와 같이 파이썬 가상 환경 하에서 <code>google-assistant-sdk[samples]</code>을 설치합니다. </p>
+<p><strong><em>On Mac:</em></strong></p>
+<pre>python3 -m venv env
+
+env/bin/python -m pip install --upgrade google-assistant-sdk[samples]</pre>
+<p><strong><em>On Windows:</em></strong></p>
+<pre>python -m venv env
+
+env\Scripts\python -m pip install --upgrade google-assistant-sdk[samples]</pre>
+<p>다음 아래와 같은 명령으로 디바이스를 등록합니다. 이 때  <code>project_id</code>는 앞 서 Google Assistant API 사용을 위해 연결한 Google Cloud Project Id를 사용합니다. 프로젝트 ID는 <a href="https://console.cloud.google.com/cloud-resource-manager?pli=1" target="_blank">Google Cloud Platform 콘솔의 리소스 관리 페이지</a>에 접속해 프로젝트 이름과 함께 표시되는 프로젝트 ID를 통해 확인할 수 있습니다.<br><br><code>model_id</code>는 고유한 식별자 값이 사용되어야합니다. 다른 개발자가 사용중인 식별자와 겹치지 않도록  project_id 값을 포함한 값으로 원하는 값을 만들어 사용하시는 것을 권장드립니다.</p>
+<aside class="special"><p>예를 들어 project_id 값이 XXXYYY 라면 model_id 값은 XXXYYY.model1 과 같은 형식으로 정할 수 있습니다. </p>
+</aside>
+<p><strong><em>On Mac:</em></strong></p>
+<pre>env/bin/googlesamples-assistant-devicetool \
+        --project-id project_id register-model \
+        --manufacturer &#34;Assistant SDK developer&#34; \
+        --product-name &#34;Assistant SDK light&#34; \
+        --type LIGHT \
+        --model model_id </pre>
+<p><strong><em>On Windows:</em></strong></p>
+<pre>env\Scripts\googlesamples-assistant-devicetool ^
+        --project-id project_id register-model ^
+        --manufacturer &#34;Assistant SDK developer&#34; ^
+        --product-name &#34;Assistant SDK light&#34; ^
+        --type LIGHT ^
+        --model model_id </pre>
+<p>디바이스가 정상적으로 등록되었는지 확인하기 위해 <code>list</code> 명령어를 사용할 수 있습니다.</p>
+<p><strong><em>On Mac:</em></strong></p>
+<pre>env/bin/googlesamples-assistant-devicetool --project-id project_id list --model</pre>
+<p><strong><em>On Windows:</em></strong></p>
+<pre>env\Scripts\googlesamples-assistant-devicetool --project-id project_id list --model</pre>
+<p>디바이스가 정상적으로 등록된 경우 다음과 같이 디바이스 목록이 표시됩니다.</p>
+<pre>&gt;
+Device Model Id: xxxxxx
+        Project Id: xxxxxx
+        Device Type: action.devices.types.LIGHT
+No traits</pre>
+<h2><strong>DeviceConfig</strong></h2>
+<p>다음으로 앞서 등록한 고유 식별자 및 사용 언어를 설정합니다. <code>AssistantActivity.java</code> 코드 내에서 <code>EmbeddedAssistant.Builde</code>r를 통해 <code>EmbeddedAssistant</code> 객체를 생성하는 부분을 찾습니다. 아래 주석 및 코드 내용을 참고해 어시스턴트 언어를 한국어로 설정하고,  앞서 등록한 <code>model_id</code>를 등록하고, 해당 디바이스를 식별할 수 있는 임의의 <code>InstanceId</code> 값을 설정하도록 코드를 수정합니다.</p>
+<pre><code>mEmbeddedAssistant = new EmbeddedAssistant.Builder()
+       .setCredentials(userCredentials)
+       .setAudioInputDevice(audioInputDevice)
+       .setAudioOutputDevice(audioOutputDevice)
+       .setAudioSampleRate(SAMPLE_RATE)
+       .setAudioVolume(initVolume)
+
+       // add language code as Korean
+       .setLanguageCode(&#34;ko-KR&#34;)
+      
+       // set device Model Id which is registered via the device register tool
+       .setDeviceModelId(&#34;model id&#34;)
+
+       // set device Instance Id (any your project scope unique value is allowed)
+       .setDeviceInstanceId(&#34;instance id&#34;)
+
+       .setRequestCallback(new RequestCallback() {
+       ...</code></pre>
+<h2><strong>Google 어시스턴트를 불러보세요.</strong></h2>
+<p>드디어 Android Things 위에서 Google 어시스턴트를 사용하기 위한 모든 준비가 완료되었습니다. 샘플 프로젝트를 빌드하고 실행합니다. </p>
+<aside class="special"><p>마이크를 연결하지 않고 실행하는 경우,  어시스턴스 초기화시 예외가 발생하고 엑티비티가 계속 자동 종료 / 재실행됩니다. 이 경우, ‘오디오 / 마이크 앱 설정&#39; 항목을 참조해 USB 마이크와 이어폰이 정상적으로 연결되었는지 확인하세요.</p>
+</aside>
+<aside class="special"><p>앱 실행에 필요한 권한이 없다는 오류가 발생하는 경우 디바이스를 재부팅해야합니다. Android Things  플랫폼에서 <a href="https://developer.android.com/things/sdk/index.html#behavior-changes" target="_blank">Dangerous Permission은 디바이스가 재부팅</a>되어야만 획득할 수 있습니다.</p>
+</aside>
+<p><img style="max-width: 390.21px" src="img/5e120a97182a7c8d.png"></p>
+<p>사용자 음성 입력을 받기 위한 ‘NEW REQUEST&#39; 버튼이 하나 있는 허전한 Activity가 표시됩니다. 화면의 ‘New Request&#39; 버튼을 클릭한 후 ‘지금 몇시야&#39; 혹은 ‘너 이름은 뭐니?&#39; 라고 말해보세요.</p>
+<p><img style="max-width: 566.50px" src="img/aae2407873d923e5.png"></p>
+<p>이어폰에 귀를 기울이세요. 감동적인 Google 어시스턴트 음성을 감상할 수 있습니다. 축하합니다. 여러분만의 Google 어시스턴트 빌트인 스피커 제작이 완료되었습니다!</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Coffee Break!" duration="0">
+        <p>첫 번째 코드랩 세션을 무사히 마무리하셨습니다!!</p>
+<p><img style="max-width: 507.95px" src="img/64c51da94ead107a.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Actions on Google 코드랩 소개" duration="0">
+        <p><img style="max-width: 624.00px" src="img/934f62b618f948c3.png"></p>
+<h2><strong>시작하기 전에</strong></h2>
+<aside class="special"><p>이 코드랩 자료는 2018년 2월 20일자 기준으로 작성되었습니다. Actions on Google과 Dialogflow 모두 발전 중인 제품으로, 첨부된 스크린 샷을 포함하여 코드랩 내용의 일부는 최신 버전의 제품 기능 및 UI와 일치하지 않을 수 있습니다.</p>
+</aside>
+<h2><strong>다시 한번 무엇을 만들게 되나요? </strong></h2>
+<ul>
+<li>Actions on Google 앱을 만듭니다. 챗봇하고 좀 비슷합니다. </li>
+<li>백엔드는 Firebase 용 Cloud 함수로 만듭니다. 외부 데이터가 필요한 경우 Firestore를 활용합니다.</li>
+<li>대화 로직은 Dialogflow로 작성합니다. </li>
+<li>만들어진 앱은 Google 어시스턴트 에뮬레이터와 Android Things 디바이스에서 사용할 수 있습니다.</li>
+</ul>
+<h2><strong>그런데 Actions on Google은 뭔가요?</strong></h2>
+<p>개발자가 Google 어시스턴트 위에서 동작하는 앱을 만들 수 있는 플랫폼 입니다. 개발자는 Actions이라는 형태로 기능을 정의 및 구현한 후 Actions on Google(AoG) 콘솔에 등록할 수 있습니다. 이 후 사용자는  어시스턴트 위에서 AoG 앱을 불러오고 다양한 Actions을 수행할 수 있습니다. </p>
+<p>어시스턴트를 위한 앱은 기존 모바일 앱과 다르게 대화형 UX를 통해 사용자와 상호작용합니다. 이는 음성만을 말하는 것은 아니며, Google 어시스턴트가 동작하는 환경에 따라 음성 뿐만 아니라 이미지, 텍스트, 동영상등 다양한 요소를 포함할 수 있습니다.</p>
+<p>AoG를 사용해 어시스턴트 앱을 만드는 것은 일반적인 매시업과 유사합니다. Google 어시스턴트 연동을 위한 <a href="https://developers.google.com/actions/dialogflow/webhook" target="_blank">Webhook 포맷</a>이 정의되어 있고, 쉽게 사용할 수 있는 <a href="https://developers.google.com/actions/reference/nodejs/AssistantApp" target="_blank">Node.js 클라이언트 라이브러리</a>가 제공됩니다. 빠른 개발을 위해 챗봇 빌더 솔루션인 Dialogflow와 쉽게 연동할 수 있는 기능도 함께 제공하고 있습니다. </p>
+<p>어시스턴트 앱은 다음과 같은 과정으로 동작합니다.</p>
+<p><img style="max-width: 624.00px" src="img/c0fb8b7a96649f64.png"></p>
+<ol type="1" start="1">
+<li>AoG 콘솔에 자신의 앱 및 액션을 등록합니다. </li>
+<li>사용자 요청을 전달받을 수 있는 서버를 만듭니다. 해당 서버 URL을 Webhook 형태로 등록합니다. 사용자가 Google 어시스턴트를 통해 앱을 호출하면 해당 서버로 요청이 전송됩니다.</li>
+<li>제공되는 클라이언트 라이브러리를 이용해 사용자 요청을 파싱해 필요한 데이터를 확인합니다.</li>
+<li>사용자 요청에 응답하기 위해  필요한 추가 작업 (예를 들어 외부 데이터 소스에서 날씨 정보 확인 등)을 수행합니다.</li>
+<li>제공되는 클라이언트 라이브러리를 이용해 정해진 포맷으로 응답 메세지를 구성해 AoG 요청에 응답합니다.</li>
+</ol>
+<p>이어지는 코드랩에서는 Actions on Google 플랫폼 위에서 Dialogflow와 Firebase 용 Cloud 함수 기능을 활용해 위에 서술한 방식으로 동작하는 간단한 어시스턴트 앱을 만들어 봅니다.</p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Actions 콘솔 프로젝트 생성" duration="0">
+        <p>가장 먼저 Actions on Google 프로젝트를 생성해봅니다. <a href="https://console.actions.google.com/" target="_blank">Actions on Google Console</a>에 접속합니다. </p>
+<p><img style="max-width: 624.00px" src="img/c9d9fbf196239a56.png"></p>
+<p>Add/Import project 카드를 선택해 새로운 프로젝트를 생성합니다. 아래와 같이 원하는 {Project Name}을 지정하고 국가는 South Korea로 설정 후 프로젝트를 생성합니다.</p>
+<p><img style="max-width: 431.50px" src="img/c3223e3cc40b2089.png"></p>
+<aside class="special"><p>만일 더이상 새로운 프로젝트를 생성 할 수 없는 경우에는, 기존 프로젝트에 AoG 설정을 추가할 수 있습니다.</p>
+</aside>
+<p>프로젝트를 최초로 생성하면 다음과 같이 어시스턴트 앱의 기본 정보를 입력하는 화면이 표시됩니다. 어시스턴트 앱이 동작하는 방법을 설정하기 위해 ‘ADD ACTIONS&#39; 버튼을 클릭합니다.</p>
+<p><img style="max-width: 624.00px" src="img/c1933889c569abd.png"></p>
+<p>어시스턴트 앱은 개발자의 선호 혹은 필요에 따라 다양한 방법으로 만들 수 있습니다. 이번 코드랩에서는 Dialogflow를 사용해 어시스턴트 앱을 만들 예정입니다. Dialogflow를 정보 카드의 Build 버튼을 클릭합니다. </p>
+<p><img style="max-width: 417.50px" src="img/a1d7352e3d62623b.png"></p>
+<p>방금전에 생성한 AoG 프로젝트와 연동되는 Dialogflow 프로젝트가 자동 구성됩니다. 다음과 같은 설정을 확인하고 ‘CREATE&#39; 버튼을 클릭해 프로젝트를 생성합니다. </p>
+<ul>
+<li>Default Language: English - en</li>
+<li>Default Time Zone: (GMT+9:00) Aisa/Tokyo</li>
+<li>Dialogflow V2 API: disabled</li>
+</ul>
+<p><img style="max-width: 624.00px" src="img/913021f92bc66cf6.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Dialogflow 설정" duration="0">
+        <p>Dialogflow 를 통해 정해진 질문에 정해진 답변을 할 수 있는 챗봇 로직을 만들어봅니다. </p>
+<p>첫 번째로 지원 언어에 한국어(ko)를 추가합니다. 왼편 상단의 언어 태그 옆 ‘+&#39; 버튼을 클릭해 지원하는 언어를 추가할 수 있습니다. </p>
+<p><img style="max-width: 390.73px" src="img/b18528b8d8b6efc9.png"></p>
+<p>Dialogflow 설정은 각 언어별로 독립적으로 구성되며, 영어 혹은 한국어을 선택한 후, 해당 언어에서 지원하는 액션을 별개로 구성할 수 있습니다. 또한 언제든지 언어 태그를 클릭하여 현재 설정된 언어를 변경 할 수 있습니다.</p>
+<h2><strong>첫 번째 Intent 만들기</strong></h2>
+<p>Dialogflow 상에서 간단한 챗봇 로직을 만들어 보도록 하겠습니다. 언어를 한국어(Ko)로 설정한 후, 메뉴의ㄴ<strong>‘Intents&#39;</strong> 항목을 선택한 후 CREATE INTENT&#39; 버튼을 클릭합니다.</p>
+<p><img style="max-width: 705.13px" src="img/454557fcbbcea624.png"></p>
+<p>처음 Intent를 생성하는 경우 위와 같은 간단한 온보딩 화면이 여러분을 반겨줍니다. Training phrases 항목에 사용자가 어시스턴트 앱에 요청하는 문장을 입력하고, Responses 부분에 어떻게 사용자에게 응답 할지 설정할 수 있습니다. 그 외 추가적인 내용은 이 후에 코드랩 단계에서 조금 더 자세한 내용을 살펴볼 예정입니다. 혹은 Dialogflow의 <a href="https://dialogflow.com/docs/intents" target="_blank">개발 문서</a>를 확인해 보셔도 좋습니다. </p>
+<p>정해진 질문에 정해진 답변을 하는 대화로직을 만드는 것은 비교적 단순합니다. <strong>‘ADD TRAINING PHRASES&#39;</strong> 버튼과 ‘<strong>ADD RESPONSE&#39;</strong> 버튼을 클릭해 입력창을 열고 다음과 같이 값을 입력한 후  ‘SAVE&#39; 버튼을 클릭합니다. </p>
+<table>
+<tr><td colspan="1" rowspan="1"><p>Training phrases:</p>
+</td><td colspan="1" rowspan="1"><p><em>오늘 일정</em></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p>Text response:</p>
+</td><td colspan="1" rowspan="1"><p><em>오늘은 코드랩 행사가 있습니다. </em></p>
+</td></tr>
+</table>
+<p>저장이 완료 되면, 화면 오른쪽의 시뮬레이터에서 새롭게 생성한 액션을 바로 시험해 볼 수 있습니다.</p>
+<p><img style="max-width: 247.00px" src="img/ca0a1b9624d17f89.png"></p>
+<p>입력 창에 <em>‘</em><strong><em>오늘 일정</em></strong>&#39;이라고 입력하면 놀랍게도 ‘<strong><em>오늘은 코드랩 행사가 있습니다.</em></strong>&#39; 라고 응답합니다. </p>
+<h2><strong>AoG와 Dialogflow 연동</strong></h2>
+<p>다음으로 만들어본 간단한 챗봇 로직을 AoG와 연동해 Google 어시스턴트 위에서 동작하도록 만들어 봅니다. Dialogflow 메뉴의 <strong>Integrations</strong> 항목을 선택합니다.</p>
+<p><strong>Google Assistant</strong>를 선택합니다. 연동을 위해 몇 가지 기본적인 설정을 할 수 있는 팝업 창이 표시됩니다. 빠른 개발을 위해 아래와 같이 <strong>‘Auto-preview changes&#39; </strong>옵션을 활성화 한 후, <strong>‘TEST&#39;</strong> 버튼을 클릭합니다. </p>
+<p><img style="max-width: 442.50px" src="img/e4e9be01c49dd5d4.png"></p>
+<p>처음에 설정한 AoG 프로젝트의 시뮬레이터 페이지가 열립니다. 시뮬레이터의 언어 설정을 아래와 같이 한국어로 변경합니다.</p>
+<p><img style="max-width: 448.50px" src="img/2dbbc26ef393fb.png"><br><br>다음으로 앞서 만든 테스트 앱을 불러 옵니다. 테스트 앱의 이름을 정확히 이야기 하거나 ~~한테 말하기 등의 <a href="https://developers.google.com/actions/discovery/explicit" target="_blank">발화명령</a>을 통해 AoG앱을 시작할 수 있습니다. 현재 Google 어시스턴트는 AoG앱을 호출할 때 다음 네 가지 종류의 발화명령을 지원합니다.</p>
+<ul>
+<li>&#39;~에게 말하기&#39;, &#39;~에 말하기&#39;, &#39;~한테 말하기&#39;, &#39;~에게 연결하기&#39;, &#39;~에 연결하기&#39;</li>
+</ul>
+<p>테스트 앱이 실행되면, 앞서 ‘<strong>오늘 일정</strong>&#39; 이라고 말해 앞서 생성한 액션을 실행합니다. 다시 한 번 놀랍게도 다음과 같은 답변을 받을 수 있습니다.</p>
+<p><img style="max-width: 223.47px" src="img/a3abd7b1a0c817a1.png"></p>
+<p>축하합니다!!! 여러분은 성공적으로 Dialogflow로 챗봇 로직을 만들고, 이를 AoG 앱 형태로 만들어 어시스턴트에서 사용할 수 있도록 연동했습니다. AoG 앱은 AoG 콘솔 시뮬레이터, 어시스턴트 기능이 탑재된 안드로이드 단말, 그리고 이전 코드랩에서 만든 Android Things 디바이스에서 모두 사용하실 수 있습니다. </p>
+<aside class="special"><p>AoG이 정식 출시되기 전에는 해당 앱 프로젝트 접근 권한이 있는 구글 계정으로 로그인된 디바이스 에서 테스트가 가능 합니다.</p>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="AoG 앱 설정" duration="0">
+        <p>만들어진 앱을 Actions on Google로 정식 출시 하기 위해서는 앱 이름과 설명등 추가 정보를 입력해야합니다. AoG 콘솔의 <strong>Overview</strong> 메뉴를 클릭한 후, <strong>App Information</strong> 항목의 <strong>‘Edit&#39; </strong>메뉴를 선택하면 상세 정보를 변경 및 작성 할 수 있습니다.</p>
+<p><img style="max-width: 476.50px" src="img/19d5457dae7fc930.png"></p>
+<p>Name 항목에서는 AoG 앱의 이름과 발음 (Pronunciation)을 지정할 수 있습니다. 추가로 Details 항목에서는 사용할 TTS 엔진의 종류와 앱 상세 정보, 사용자가 AoG 앱을 부를 때 사용할  발화 명령(Sample invocations)으로 사용할 수 있는 몇 가지 예시 문장을 추가할 수도 있습니다. 다음으로 Image 항목에서는 사용자가 해당 AoG 앱을 검색했을 때 표시되는 배너 이미지와 챗팅 창에서 표시될 챗 아이콘 이미지를 추가합니다. </p>
+<p><img style="max-width: 513.50px" src="img/652e849a081277c.png"></p>
+<p>마지막으로 Privacy and consent 메뉴에서는 Privacy Policy 관련 항목에 개인 정보 보호에 관한 정책 내용을 반드시 추가해야합니다. 우선은 이번 코드랩을 위해서는 미리 만들어둔 다음 링크를 활용하실 수 있습니다. </p>
+<ul>
+<li><a href="https://docs.google.com/document/d/1IjcnPwVc8PF7b_lgTjUa1tZ21L60u_skzQDwkT-lmU0/edit?usp=sharing" target="_blank">https://docs.google.com/document/d/1IjcnPwVc8PF7b_lgTjUa1tZ21L60u_skzQDwkT-lmU0/edit?usp=sharing</a></li>
+</ul>
+<aside class="warning"><p>위 링크의 포함된 내용은 임의로 만들어진 Privacy Policy로 코드랩 외의 용도로는 사용될 수 없습니다. </p>
+</aside>
+<p>모든 작업이 완료되면 화면 하단의 <strong>SAVE</strong> 버튼을 클릭합니다. 성공적으로 저장이 완료된 후 다시 한번 AoG 시뮬레이터에서 어시스턴트 앱을 테스트해봅니다. 이제 ‘테스트 앱&#39;이라는 애매모호한 이름이 아닌, 여러분이 지정한 이름으로 AoG 앱을 불러오고 지정한 앱 아이콘도 함께 확인할 수 있습니다. </p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Fulfillment #1 - Inline Editor 활용" duration="0">
+        <p>다시<a href="https://console.dialogflow.com" target="_blank"> Dilalogflow 콘솔</a>로 돌아옵니다. 정해진 질문에 정해진 답변을 하는 것에서 더 발전해, 사용자 요청을 처리하기 전에 추가적인 작업을 할 수 있도록 챗봇 로직을 확장합니다. ‘오늘 날씨 어때?&#39; 라는 사용자 요청을 처리할 때, 오늘 날짜를 확인하고, 외부 소스에서 해당 날짜의 날씨 정보를 확인 한 후 사용자에게 응답할 수 있습니다.</p>
+<p>Dialogflow에서는 <a href="https://dialogflow.com/docs/fulfillment" target="_blank">Fulfillment</a> 설정을 통해 이러한 작업을 구성할 수 있습니다. Fulfillment Webhook과 연동되는 백엔드 웹 서비스는 다양한 형태로 만들 수 있습니다. 이번 코드랩에서는 Dialogflow와 쉽게 연동할 수 있는 Firebase 용 Cloud 함수 제품을 사용해 백엔드 웹서비스를 구현합니다.</p>
+<p><img style="max-width: 624.00px" src="img/37f9888fa6592226.png"></p>
+<h2><strong>Inline Editor 기능 시작하기</strong></h2>
+<p>먼저 Inline Editor를 활용하는 방법을 살펴 봅니다. Dialogflow의 <strong>Fulfillment</strong> 메뉴를 선택합니다. 아래와 같이 Webhook과 Inline Editor 두 가지 옵션이 제공됩니다. 우선 Inline Editor 기능을 확인해봅니다. </p>
+<p><img style="max-width: 624.00px" src="img/a2c41852b00fae55.png"><br></p>
+<p>개발자는 Inline Editor에서 직접 사용자 요청을 처리하고 Dialogflow로 응답을 전달하는 <code>node.js</code> 코드를 작성할 수 있습니다. 미리 작성되어있는 탬플릿 코드에는 사용자 요청 처리를 위한 기본 로직 및 <code>firebase-functions</code>과 <code>actions-on-google</code> 라이브러리가 포함되어 있습니다. 코드는 크게 세 가지 부분으로 나누어집니다. <br></p>
+<ul>
+<li>요청을 파싱해서 필요한 인자(<code>action, parameters, etc...</code>)를 파싱하는 부분.</li>
+<li>사용차 요청을 구분하고 이를 처리하기 위한 적절한 로직을 호출하는  <code>actionHandlers</code>를 선언하고 이를 호출하는 부분</li>
+<li>사용자 응답을 구성할 때 사용할 템플릿과 <code>sendGoogleResponse</code> 등의 헬퍼 함수</li>
+</ul>
+<p>이번 코드랩에서는 코드 각각의 기능을 자세히 살피기 보다, 전체적인 동작 흐름을 살펴보고  <code>actionHandlers</code> 부분에 새롭게 추가한 ‘오늘 행사&#39; intent를 처리하기 위한 코드를 작성해 추가해봅니다. </p>
+<p>Inline Editor 기능을 활성화 한 후 <strong>‘Deploy&#39;</strong> 버튼을 클릭합니다. Inline Editor는 Firebase 용 Cloud 함수기반을 동작합니다. 처음 기능을 활성화하면 AoG앱과 연결된 Cloud 프로젝트 내에 Cloud 함수와 Firebase 프로젝트가 자동으로 추가됩니다. 이 후 코드를 추가하거나 수정하는 경우 Firebase로 해당 코드가 배포됩니다. 이 때 약간의 시간이 소요될 수 있습니다.</p>
+<p><img style="max-width: 412.50px" src="img/84a04dd9fb0fcb00.png"></p>
+<p>콘솔 화면 오른쪽 하단 토스트 형태로 배포 상태가 표시됩니다. 배포가 완료되면 Intents 메뉴로 이동하고 <strong>‘오늘 일정&#39;</strong> Intent를 선택합니다. 아래와 같이 Response 탭 하단에 Fulfillment 관련된 설정이 추가된 것을 확인할 수 있습니다.</p>
+<p><img style="max-width: 624.00px" src="img/2894c6af8d9fc4be.png"><br></p>
+<p>Use webhook 체크박스로 해당 intent를 처리할 때 Fulfillment Webhook 사용 여부를 설정할 수 있습니다. Webhook을 사용하는 것으로 체크박스를 체크합니다. SAVE 버튼을 클릭해 변경 사항을 저장합니다. 변경 사항이 반영되는데 약간의 시간이 소요될 수 있습니다. (업데이트 중에는 왼쪽 메뉴 상단의 프로젝트 이름 옆 기어가 돌아갑니다. 아이콘이 멈출때까지 기다리세요.)</p>
+<p><img style="max-width: 262.00px" src="img/97967533cf3b0353.png"></p>
+<p>시뮬레이터 상에서 다시 한 번 테스트를 진행합니다. 사용자 요청이 정상적으로 Inline Editor상의 로직으로 전달 되면, 다음과 같이 <em>&#34;</em><strong><em>This message is from Dialogflow&#39;s Cloud Functions for Firebase editor!</em></strong><em>&#34;</em>라는  응답이 나옵니다.</p>
+<p><img style="max-width: 313.38px" src="img/2256425c8a5cb906.png"></p>
+<h2><code>actionHanlders</code><strong> 기능 확장하기</strong></h2>
+<p>다음으로 intent에 액션명을 추가합니다. 해당 액션명을 기반으로 <code>actionHandlers</code> 상에서 <strong><em>오늘 행사 </em></strong> intent를 구분할 수 있습니다. Intent 메뉴에서 Action 항목을 클릭하면 메뉴가 확장되고 아래와 같이 액션명 입력 창이 표시됩니다. </p>
+<p><img style="max-width: 624.00px" src="img/662b6d4ef52379c8.png"></p>
+<p>액션명은 다른 액션과 구분되는 값이면 뭐든지 사용할 수 있습니다.  여기서는 기존 코드에 정의된 다른 액션 명명 규칙과 유사하게 <em>input.todayevent </em>라고 하겠습니다. 변경 사항을 저장하고 다시 Fulfillment 메뉴로 이동합니다.</p>
+<p><code>actionHandlers</code> 코드를 살펴보면, <code>input.welcome, input.unknown</code>등의 액션(intent)를 처리하기 위한 코드를 확인할 수 있습니다. 해당 부분에 아래와 같이 ‘<em>input.todayevent</em>&#39; 이벤트를 처리하기 위한 코드를 추가합니다. 사용자 요청으로 ‘<em>input.todayevent</em>&#39; 액션이 들어오면, <em>&#34;오늘은 코드랩 행사가 있습니다.&#34; </em>라는 간단한 텍스트를 응답하는 코드입니다. </p>
+<aside class="special"><p>Fulfillment 코드는 크게 Dialogflow v1 / v2 요청을 처리하는 부분으로 나누어져 있습니다. 코드랩은  Dialogflow v1 버전을 기반으로 작성되었고, 이 후 코드 수정 사항은 <code>processV1Request</code> 함수 내부의 내용을 수정해야합니다.</p>
+</aside>
+<pre><code>// &#39;오늘 행사&#39; action intent has been matched
+&#39;input.todayevent&#39;: () =&gt; {
+   if (requestSource === googleAssistantRequest) {
+     sendGoogleResponse(&#39;오늘은 코드랩 행사가 있습니다. from webhook&#39;); 
+   } else {
+     sendResponse(&#39;오늘은 코드랩 행사가 있습니다. from webhook&#39;);
+   }
+},</code></pre>
+<p>변경 사항을 저장하고 Deploy 버튼을 클릭한 후 배포가 완료되는 것을 잠시 기다립니다. 배포가 완료된 후 Dialogflow 혹은 AoG 시뮬레이터에서 테스트를 진행합니다. 다음과 같이 <em>&#34;오늘은 코드랩 행사가 있습니다. from webhook&#34; </em>응답을 확인할 수 있습니다.</p>
+<p><img style="max-width: 246.38px" src="img/2d42d32c639c9061.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Fulfillment #2 - Firebase 용 Cloud 함수 활용" duration="0">
+        <p>Inline Editor는 fulfillment를 쉽게 테스트해볼 수 있는 좋은 방법입니다. 하지만 처리해야할 사용자의 요청이 많아지고 앱의 기능이 복잡지며 특히 다른 개발자와의 협업이 필요한 경우라면 더 나은 방법이 필요합니다. 이번 코드랩 단계에서는 Inline Editor 대신 Firebase 용 Cloud 함수 기능을 활용해 자신만의 백엔드 웹서비스를 구축하고 Dialogflow webhook으로 이를 연결해보겠습니다.</p>
+<p>첫 번째로 Inline Editor로 이동해 오른쪽 상단의 다운로드(<img style="max-width: 23.67px" src="img/79ac7715ead8f151.png">) 버튼을 클릭해 코드를 다운로드 받습니다.</p>
+<p><img style="max-width: 624.00px" src="img/9daac9a71ad0a1d2.png"></p>
+<p>다음으로 Firebase CLI (Command Line Interface) 도구를 사용해 Firebase 용  Cloud 함수 배포 환경을  꾸립니다.</p>
+<aside class="special"><p>아직 개발 노트북에 Firebase CLI 도구를 설치하지 않은 경우 <a href="https://firebase.google.com/docs/cli/#setup" target="_blank">Install the Firebase CLI</a> 내용을 참고해 도구를 설치합니다. </p>
+</aside>
+<ol type="1" start="1">
+<li>Firebase CLI 설치가 완료되면, 앞 서 다운로드 받은 <code>&#34;firebaseFulfillment.zip&#34;</code> 압축을 풉니다.</li>
+<li>터미널 혹은 쉘을 열고 압축을 푼 파일의 <code>functions</code> 폴더로 이동합니다. (예를 들어 <code>~/Downloads/firebaseFulfillment/firebase/functions)</code></li>
+<li><code>npm install</code> 명령을 실행합니다.  function에서 사용되는 dependency가 설치됩니다.</li>
+<li><code>firebase login</code> 명령을 실행합니다. 앞 서 Cloud 프로젝트에서 사용한 Google 계정을 이용해 로그인 합니다. 이 후 Firebase CLI를 통해 Cloud 및  Firebase 프로젝트를 관리할 수 있습니다.</li>
+<li><code>firebase init</code> 명령을 실행합니다. 사용할 Firebase 기능을 선택하는 선택지가 출력됩니다. 방향키와 스페이스키를 이용해 다음과 같이 firebase functions와 다음 코드랩 단계에서 사용할 firestore를 선택한 후 Enter키를 입력합니다.<br><img style="max-width: 490.50px" src="img/a4d678e78adb540e.png"><br><br>다음으로 현재 CLI 환경과 연결할 firebase 프로젝트를 선택해야합니다. 코드랩 전반부에 생성한 Cloud 프로젝트의 project_id 값을 갖고 있는 프로젝트를 선택합니다. 이 후 각각의 기능 사용에 관한 추가 설정이 필요합니다. Firestore 관련 내용은 Enter 키를 눌러 기본 설정을 활용할 수 있습니다.<br><br><img style="max-width: 497.50px" src="img/76430ce5b13ad514.png"><br><br>위와 같이 Cloud 함수 쪽 설정 중 사용언어 부분은 JavaScript로 ESLint 사용은 No로 설정합니다. 이어서  <code>functions/package.json</code> 파일과 <code>functions/index.js</code>의 경우 이미 폴더에 포함되어 있는 파일을 그대로 사용합니다. <strong>Overwrite 여부를 묻는 경우 No를 선택</strong>합니다.<br><br><img style="max-width: 426.50px" src="img/185a0ba452e4c81b.png"><br></li>
+</ol>
+<aside class="special"><p>Overwrite? 설정 중 Yes를 선택하면 Inline Editor에서 작성했던 코드가 모두 삭제될 수 있습니다. 이 경우 앞서 다운로드한 fulfillment 압축 파일에 포함되어있던 이전 package.json / index.js 파일을 참조해 파일 내용을 다시 수정합니다.</p>
+</aside>
+<p>이제, Firebase CLI를 활용할 준비가 모두 완료되었습니다. <code>firebase deploy --only functions</code> 명령을 실행하면 앞서 다운로드 받은 Cloud 함수 코드를 firebase로 배포할 수 있습니다. 배포가 완료되면 터미널 창에 다음과 같이 Function URL이 출력됩니다. 해당 URL을 복사한 후 Dialogflow의 Fulfillment 메뉴로 이동합니다.</p>
+<p><img style="max-width: 611.50px" src="img/a3532f25ec5545ba.png"></p>
+<p>Inline Editor 대신 Webhook 옵션을 활성화하고 URL 입력창에 Function URL을 입력합니다. </p>
+<aside class="special"><p>Function URL 항목이 누락된 경우 화면에 표시된 Project Console 주소로 접속해 콘솔로 이동합니다.  Trigger 탭을 확인하면 Function URL을 확인할 수 있습니다.</p>
+</aside>
+<p><img style="max-width: 514.30px" src="img/7ee9c4e27966eed8.png"></p>
+<p>화면 하단의 SAVE 버튼을 눌러 변경 사항을 저장한 후 AoG 앱을 테스트해봅니다. <strong>‘오늘 일정&#39;</strong> 액션을 요청했을 때 이전 단계와 동일한 응답을 받을 수 있습니다. </p>
+<aside class="special"><p>Firebase CLI 상에서 잘못된 Google 계정으로 로그인한 경우 <code>firebase logout</code> 명령어로 로그아웃 후 다시 firebase login 명령을 입력해 새로운 계정으로 로그인 할 수 있습니다. 프로젝트 설정이 정상적으로 이루어지지 않은 경우 <code>firebase use --clear</code>  명령으로 기존 설정된 프로젝트를 제거한 후 <code>firebase use</code> 명령으로 프로젝트를 다시 설정할 수 있습니다. 그 외 Firebaes CLI의 다른 명령은 <a href="https://firebase.google.com/docs/cli/#setup" target="_blank">Firebase CLI 참조 페이지</a>의 내용을 참고하세요.</p>
+</aside>
+<h2><strong>Cloud 함수 로그 확인하기</strong></h2>
+<p>정확히 어떤 형태로 사용자 요청과 응답이 전송되는지 또한 Cloud 함수가 정상적으로 동작하는지 확인하기 위해 로그를 확인할 필요가 있습니다. <a href="https://console.firebase.google.com/?hl=ko" target="_blank">Firebase 콘솔</a>에 접속해  앞서 연결한 Cloud 프로젝트를 선택합니다. 왼편 메뉴바의 Develop 부분에서 Functions 메뉴를 고르면 다음과 같이 로그를 확인할 수 있는 대시보드가 표시됩니다. </p>
+<p><img style="max-width: 624.00px" src="img/f2161bc3713e41f6.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Fulfillment #3 - Cloud Firestore 활용" duration="0">
+        <p>사용자 요청을 처리할 때, 외부 데이터 소스(혹은 웹서비스)의 정보를 활용할 수 있도록 다음과 같이 기능을 확장합니다. </p>
+<ul>
+<li>사용자가 ‘<strong>오늘 일정</strong>&#39; 액션을 요청하면, 외부에 저장된 데이터 소스를 참조해 행사 이름을 확인하고 해당 값을 이용해 응답 문장을 구성해 반환합니다. </li>
+<li>사용자가 ‘<strong>행사 정보 추가</strong>&#39; 액션을 요청하면, 새로운 행사명을 입력받고 해당 행사를 외부 데이터 소스에 추가합니다.</li>
+<li>이 후 사용자가 <strong>‘오늘 일정</strong>&#39; 액션을 다시 요청하면, 앞 서 추가된 행사 정보가 반환됩니다.  </li>
+</ul>
+<p>이번 코드랩에서는 Firebase 용 Cloud 함수 내에서 쉽게 활용할 수 있는 Cloud Firestore를 외부 데이터 소스로 활용합니다.</p>
+<aside class="special"><p>무료 플랜을  사용해도 Firebase 용 Cloud 함수 내에서 Google 내부로 향하는 네트워크 통신을 활용할 수 있습니다.</p>
+</aside>
+<aside class="special"><p>이번 코드랩에서는 AoG와 쉽게 연동되는 외부  웹서비스 역할로 Cloud Firestore를 사용합니다. 제품의 상세한 기능 및 특징은 <a href="https://firebase.google.com/docs/firestore/?hl=ko" target="_blank">Cloud Firestore 개발자 페이지</a>를 참고하세요.</p>
+</aside>
+<h2><strong>Cloud Firestore 사용 설정 </strong></h2>
+<p>Cloud Firestore는 모바일, 웹, 서버 개발에 사용되는 유연하고 확장 가능한 데이터베이스입니다. 현재 오픈 베타 단계로 Firebase 콘솔에서 확인 후 사용 할 수 있습니다. Firebase 콘솔로 접속 후 Database 메뉴를 선택합니다. ‘FIRESTORE 베타 사용해 보기&#39; 버튼을 클릭해 기능을 활성화 합니다. </p>
+<p><img style="max-width: 596.80px" src="img/8582b774a3c4ca81.png"></p>
+<p>이어서 Cloud Firestore 보안 규칙 선택 팝업 창이 나타납니다. 빠르고 쉬운 개발을 위해 보안 규칙이 적용되지 않는  ‘<strong>테스트 모드로 시작</strong>&#39; 옵션을 선택하고 <strong>‘사용 설정&#39;</strong> 버튼을 클릭합니다. </p>
+<p><img style="max-width: 595.50px" src="img/8959122cfd996378.png"></p>
+<p>프로비저닝이 완료되면 Firestore내 데이터를 확인하고 추가할 수 있는 웹 프론트 UI가 표시됩니다. </p>
+<h2><strong>Firestore 데이터 입력</strong></h2>
+<p>다음으로 웹 프론트 UI 상에서 직접 Firesore에 행사 관련된 데이터를 추가해봅니다. Firestore는 데이터를 ‘<strong>문서(Document)</strong>&#39; 단위로 저장하며, 데이터를 담고있는 여러 문서를 묶어 <strong>‘컬렉션(Collection)</strong>&#39; 단위로 관리합니다. 문서가 담을 수 있는 데이터의 종류는 다양하며 다른 문서들의 집합인 서브 컬렉션을 포함 할 수도 있습니다. 반대로 모든 문서는 반드시 하나의 컬렉션에 속해있어야 합니다. </p>
+<p><img style="max-width: 234.50px" src="img/2584f11fd19cd277.png"></p>
+<p>그럼 먼저 행사 정보를 담은 문서를 보관하기 위한 <code>events</code> 컬렉션을 생성합니다. 그리고 뒤 이어 <code>events</code> 컬렉션에 포함될 첫 번째 문서를 생성합니다. </p>
+<p><img style="max-width: 468.33px" src="img/df9802823a562e06.png"></p>
+<p>문서 ID는 다른 문서와 구분되는 임의의 값을 사용할 수 있습니다. 혹은 ID 입력 창을 공백으로 남겨두면 자동으로 ID가 생성됩니다. 첫 번째 문서 데이터에 <code>name</code> 필드를 추가하고 유형을 <code>string</code>으로 선택한 후 적당한 값 (위 예시에서는 <em>‘구글 코드랩 행사</em>&#39;)를 입력합니다. 이   사용자가 ‘오늘 행사&#39; 액션을 요청하면 해당 값을 활용해 요청 응답을 구성하게 됩니다. </p>
+<p>‘저장&#39; 버튼을 눌러 데이터를 저장합니다. 이 후, 다음 단계에서 문서의 데이터 값을 불러오기 위해 생성된 문서의 <strong>ID 값</strong>(아래의 경우 uWf5m~~~)을 기억해둡니다. </p>
+<p><img style="max-width: 381.50px" src="img/ff50c6c9c1786581.png"></p>
+<h2><strong>Cloud 함수 에서 Firestore 데이터 가져오기</strong></h2>
+<p>웹 프론트뿐만아니라 Cloud 함수 코드 내에서 Firestore 문서 데이터를 가져올 수 있습니다. 우선 터미널 혹은 쉘을 실행합니다. Cloud 함수 작업을 진행했던 <code>functions</code> 폴더로 이동해 <code>node.js</code> 용 클라이언트 SDK를 설치합니다. 참고로 현재 5.X.X 대의 SDK 최신 버전은 5.9.0 버전으로 해당 버전이 설치됩니다. </p>
+<pre>npm install --save firebase-admin@^5.4.0</pre>
+<p>폴더내의 <code>package.json</code> 파일을 확인해 프로젝트 의존성 설정에 <code>firebase-admin</code>이 올바르게 추가되어 있는지 확인합니다.</p>
+<p><img style="max-width: 307.86px" src="img/227a331addec50a1.png"></p>
+<aside class="special"><p>5.4.0 미만 버전 <code>firebase-admin</code> SDK가 설치되어있는 기능이 정상적으로 동작하지 않을 수 있습니다. 꼭 업데이트 해주세요!</p>
+</aside>
+<p>다음으로  <code>index.js</code> 파일을 수정 해  Firestore의 데이터를 불러오는 코드를 추가합니다.  우선 해당 파일을 열고 <code>firebase-admin</code> 라이브러리를 불러오는 코드를 추가합니다. </p>
+<pre><code>// Cloud Functions for Firebase library
+const functions = require(&#39;firebase-functions&#39;); 
+// Google Assistant helper library
+const DialogflowApp = require(&#39;actions-on-google&#39;).DialogflowApp; 
+
+// CODELAB: 아래 코드를 추가하세요
+
+// Firestore 접근을 위해 Firebase Admin SDK를 추가합니다.
+const admin = require(&#39;firebase-admin&#39;); 
+// 프로젝트 기본 설정을 기반으로 Firebase 앱 Instance를 생성합니다.
+admin.initializeApp();</code></pre>
+<p>코드 상에서 Firestore 접근을 위한 준비가 모두 마무리되었습니다. 이제 Firestore에 저장된 문서 정보를 활용해 사용자 요청을  처리하는 코드를 추가합니다. 필요한 코드는 다음과 같습니다.</p>
+<ol type="1" start="1">
+<li>문서 ID를 키 값으로 <a href="https://cloud.google.com/nodejs/docs/reference/firestore/0.11.x/DocumentReference?hl=ko" target="_blank"><code>DocumentReference</code></a>를 생성합니다. </li>
+<li><code>promise</code> 형식의 비동기 호출을 통해 실 데이터가 담긴 <a href="https://cloud.google.com/nodejs/docs/reference/firestore/0.11.x/DocumentSnapshot?hl=ko" target="_blank"><code>DocumentSnapshot</code></a>를 가져옵니다. </li>
+<li>스냅샷을 통해 문서의 필드값은 <code>property</code> 형식으로 접근할 수 있습니다.</li>
+<li>비동기 호출이 성공하면 문서 데이터를 가져와 사용자 요청에 대한 응답을 만듭니다.</li>
+<li>비동기 호출이 실패하면 필요한 예외 처리를 합니다. </li>
+</ol>
+<p>그럼 순서대로 진행해 보도록 하겠습니다. 앞서서 ‘<code>input.todayevent&#39;</code>액션을 처리하기 위해 작성한 코드로 이동합니다. 클라이언트를 불러와 특정 컬렉션에 속한 문서 정보를 가져와 지역 변수에 저장하는 코드를 추가합니다.</p>
+<pre><code>// CODELAB: 아래 코드를 추가하세요
+// &#39;오늘 행사&#39; action intent has been matched
+&#39;input.todayevent&#39;: () =&gt; {
+
+ // Firestore 접근을 위해 Firestore 클라이언트를 가져옵니다.
+ var db = admin.firestore();
+ var eventName;
+
+ // events 컬렉션에 접근해 DOCUMENT_ID의 문서 참조를 가져옵니다.
+ var docRef = db.collection(&#39;events&#39;).doc(DOCUMENT_ID);
+ ...</code></pre>
+<p>이 때 <code>DOCUMENT_ID</code> 부분은 아래와 같이 앞에서 저장해둔 문서 ID 값을 사용하도록 변경합니다.</p>
+<pre><code>var docRef = db.collection(&#39;events&#39;).doc(&#39;uWf5m83aQVVPHqKWjOTy&#39;)</code></pre>
+<p>이어서  <a href="https://cloud.google.com/nodejs/docs/reference/firestore/0.11.x/DocumentSnapshot?hl=ko" target="_blank"><code>DocumentSnapshot</code></a>를 가져오기 위한 비동기 호출을 하고 호출 결과에 따라 적절하게 사용자 요청을 처리합니다.</p>
+<pre><code>... 
+// 문서 참조를 기반으로 실제 문서 데이타를 가져옵니다.
+// 해당 작업은 비동기로 수행됩니다.
+docRef.get().then(doc =&gt; {
+   if (!doc.exists) {
+       // 문서 데이터가 없는 경우 행사가 없다는 메세지를 출력합니다.
+       console.log(&#39;No such document!&#39;);
+       sendResponse(&#39;오늘은 행사가 없습니다. from webhook with firestore&#39;);
+   } else {
+       // 문서 데이터에서 name property 값을 가져와 eventName에 저장합니다.
+       eventName = doc.data().name;
+       console.log(&#39;Document data:&#39;, doc.data().name);
+
+       // eventName을 사용해 사용자 요청에 응답합니다.
+       if (requestSource === googleAssistantRequest) {
+         sendGoogleResponse(&#39;오늘은 &#39; + eventName + &#39;가 있습니다. from webhook with firestore&#39;);
+       } else {
+         sendResponse(&#39;오늘은 &#39; + eventName + &#39;가 있습니다. from webhook with firestore&#39;);
+       }             
+   }
+ })
+ .catch(err =&gt; {
+   console.log(&#39;Error getting document&#39;, err);
+});
+}, //&#39;input.todayevent&#39; 구문이 끝나는 지점</code></pre>
+<p>코드 작성이 완료되었습니다. 터미널에서 다음 명령을 실행해 변경된 Cloud 함수 코드를 배포합니다.</p>
+<pre>firebase deploy --only functions</pre>
+<p>배포가 완료된 후 AoG 시뮬레이터 혹은 Dialogflow 시뮬레이터에서 <strong>‘</strong><strong><em>오늘 일정&#39; </em></strong> 액션을 테스트합니다. 다음과 같이 Firestore에 저장된 값이 응답으로 반환됩니다.</p>
+<p><img style="max-width: 346.50px" src="img/408f943e413d38db.png"></p>
+<aside class="special"><p><code>‘input.todayeven</code>t&#39; 액션을 처리하기 위한 코드 조각은 다음 <a href="https://gist.github.com/huewu/35e28f80de42d4d4c69c6850e73aea70" target="_blank">Gist</a>에서도 확인할 수 있습니다. </p>
+</aside>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="Fulfillment #4 - 사용자 입력 받기" duration="0">
+        <p>Fulfillment 구현의 마지막 단계입니다. 새로운 행사 정보를 등록할 수 있는 액션을 추가하고, 해당 정보를 Cloud Firestore를 통해 저장하도록 Fulfillment를 확장합니다. Dialogflow 상에서 사용자 입력을 받을 수 있는 대화형 액션은 다음과 같은 단계로 구현할 수 있습니다. </p>
+<p>1. Dialogflow 상에서 <strong><em>‘새로운 행사 정보 등록을 요청</em></strong>&#39;하는 액션을 추가합니다.</p>
+<p>2. 사용자가 <strong><em>‘행사 정보 추가할래&#39; </em></strong>등의 형식으로 정보 등록 요청 액션을 호출합니다.</p>
+<p>3. Dialogflow 상에서 액션이 호출되고, 다음과 같은 동작을 수행합니다.</p>
+<ul>
+<li><strong>‘</strong><strong><em>새로운 행사 이름을 알려주세요.</em></strong><strong>&#39; </strong>처럼 추가적인 사용자 입력을 요청하는 응답을 전달합니다.</li>
+<li>대화 세션 내에 다음으로 사용자의 추가 입력 (<em>행사명</em>)이 필요한 상태임을 저장합니다. 대화 중의 상태 정보는 <a href="https://dialogflow.com/docs/contexts" target="_blank"><code>context</code></a>를 사용해 저장 할 수 있습니다. </li>
+</ul>
+<p>4. 사용자 입력이 필요한 상태를 나타내는 <code>context</code>가 있는 경우에만 동작하는 액션을 추가합니다. 해당 액션은 다음과 같은 동작을 합니다.</p>
+<ul>
+<li>사용자가 <strong>‘</strong><strong><em>구글 컨퍼런스 등록해줘</em></strong><strong>&#39; </strong>와 같은 요청을 하는 경우, 사용자 요청 중 ‘행사명(구글 컨퍼런스)&#39;에 해당하는 부분을 파싱해 Firestore로 저장합니다.</li>
+<li>사용자에게 <strong><em>‘새로운 행사 정보가 성공적으로 저장되었습니다</em></strong><strong>&#39; </strong>와 같이 요청이 올바르게 처리된 것을 확인하는 응답을 전달합니다.</li>
+<li>기존 <code>context</code> 정보를 초기화합니다. </li>
+</ul>
+<aside class="special"><p><code>context</code>는 진행되는 대화 세션 중에 계속 유지되는 전역 변수와 유사한 역할을 수행합니다. 대화의 흐름을 제어하기 위한 플래그로 활용될 수도 있고, 키/밸류 값을 저장해두고 보다 자연스럽게 사용자 요청을 처리하는데 활용할 수도 있습니다. 보다 자세한 내용은 <a href="https://dialogflow.com/docs/contexts" target="_blank">Dialogflow Contexts 개발 문서</a> 내용을 참고하세요.</p>
+</aside>
+<h2><strong>‘행사 정보 추가 요청&#39; 액션 만들기</strong></h2>
+<p>그럼 우선 Dialogflow 콘솔의 Intents 메뉴에서 행사 정보 추가를 위한 액션을 새롭게 생성합니다.</p>
+<p><img style="max-width: 566.94px" src="img/aed2a6e35778ae85.png"></p>
+<p>예를 들어 사용자 요청과 응답은 다음과 같이 입력할 수 있습니다 </p>
+<table>
+<tr><td colspan="1" rowspan="1"><p><strong>Training phrases:</strong></p>
+</td><td colspan="1" rowspan="1"><p><em>&#34;행사 정보 추가&#34;</em></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong>Text response:</strong></p>
+</td><td colspan="1" rowspan="1"><p><em>&#34;새로운 행사 이름을 알려주세요.&#39;</em></p>
+</td></tr>
+</table>
+<p>다음으로 화면 상단의 Contexts 패널을 확장합니다. ‘Add output context&#39; 입력창에 다음과 같이 저장할 <code>context</code> 정보를 추가합니다. 화면 하단의 SAVE 버튼을 눌러 변경 사항을 저장합니다.</p>
+<table>
+<tr><td colspan="1" rowspan="1"><p><strong>Add output context:</strong></p>
+</td><td colspan="1" rowspan="1"><p><em><code>waiting_for_new_event_name</code></em></p>
+</td></tr>
+</table>
+<aside class="special"><p><em><code>waiting_for_new_event_name</code></em><em>는 상태 구분을 위한 임의의 상태값으로 추가적인 기능이나 의미를 갖고있지는 않습니다. </em></p>
+</aside>
+<p><img style="max-width: 624.00px" src="img/23d32f131410a690.png"></p>
+<p>이번 코드랩 단계에서는 <code>out context</code>를 <strong>대화 흐름을 제어하기 위한 플래그</strong>로 사용합니다. 해당 액션이 호출된 이 후 이루어지는 액션 호출에서는 <code>waiting_for_new_event_name</code> 값이 함께 전달됩니다. 왼편의 숫자 <code>5</code>는 해당 <code>out context</code>의  수명 (life span)을 나타냅니다. 위의 경우 해당 액션 호출 후 5번의 사용자 요청이 추가로 처리된 후에는 <code>context</code> 값이 자동으로 초기화됩니다.</p>
+<h2><strong>‘행사 이름 입력&#39; 액션 만들기</strong></h2>
+<p>실제로 사용자에게 새로운 행사 이름을 입력 받는 액션을 생성합니다. 이 액션은 <code>waiting_for_new_event_name</code> context 값이 설정된 경우에만 호출될 수 있어야 합니다. Dialogflow 콘솔의 Intents 메뉴에서 새로운 액션을 하나 추가하고, Intent 이름은 ‘행사 이름 입력&#39; 이라고 지정합니다.</p>
+<p>화면 상단의 Contexts 패널을 확장해 다음과 같이 context를  설정합니다. 참고로 Input context는 해당 액션에 진입할 수 있는 context  조건을 나타냅니다. </p>
+<table>
+<tr><td colspan="1" rowspan="1"><p><strong>Add input context:</strong></p>
+</td><td colspan="1" rowspan="1"><p><em>waiting_for_new_event_name</em></p>
+</td></tr>
+<tr><td colspan="1" rowspan="1"><p><strong><em>Add output context:</em></strong></p>
+</td><td colspan="1" rowspan="1"><p><em>Contexts will be reset (x 버튼을 눌러 자동 추가되는 context를 삭제합니다.)</em></p>
+</td></tr>
+</table>
+<p>다음으로 사용자가 액션을 호출할 때 사용할 ‘<em>Training phrases</em>&#39; 항목을 추가합니다. 기존 액션과는 다르게 액션 파라미터를 설정하고, 사용자 입력 중 새로운 행사 이름 정보를 파라미터 값으로 가져와야합니다. 다행히 Dialogflow 상에서는 이러한 설정을 비교적 수월하게 할 수 있습니다.</p>
+<p>우선  ‘<em>Training phrases&#39;</em> 란에 다음과 같이 행사명 입력을 위한 몇 가지 대표 구문을 입력합니다.</p>
+<p><img style="max-width: 600.50px" src="img/87365a39cb63e96.png"></p>
+<aside class="special"><p>Dialogflow 설정에 따라 Training phrases 항목을 입력할 때 자동으로 파라미터 설정이 추가됩니다. (예를 들어 구글 컨퍼런스의 글자 ‘구&#39;가 숫자로 인식되어 <code>@sys.number</code> 속성의 파라미터가 추가) 이 때 파라미터 정보 오른쪽의 X 표시를 클릭해 자동 추가된 파라미터를 제거할 수 있습니다. </p>
+</aside>
+<p>다음으로 아래와 같이 행사 이름에 해당하는 ‘구글 컨퍼런스&#39; 항목을 드래그하여 선택합니다. 다음과 같이 파라미터 설정을 위한 팝업창이 표시됩니다.</p>
+<p><img style="max-width: 424.91px" src="img/2e43af3b23ce5b0e.png"></p>
+<p>해당 팝업에서 파라미터 데이터 타입을 지정할 수 있습니다. 행사 이름에는 특별한 제약 조건이 없습니다. <code>@sys.any</code> 타입은 어떠한 값이든 올 수 있는 형식입니다. 해당 타입을 선택하면 선택 영역의 색상이 주황색으로 변경되고, 아래와 같이 자동으로 파라미터가 추가됩니다. 파라미터의 성격을 명확히 알 수 있도록 PARAMETER NAME 값을 event_name으로 변경합니다.</p>
+<p><img style="max-width: 624.00px" src="img/3269b190e99ca625.png"></p>
+<p>이 후 다른 대표 구문에서 마찬가지로 ‘구글 컨퍼런스&#39; 항목을 선택하면 다음과 같이 바로 앞서 생성한 <code>@sys.any:event_name</code> 파라미터를 지정할 수 있습니다. 모든 대표 구문에 해당 파라미터를 지정해 둡니다.</p>
+<p><img style="max-width: 475.50px" src="img/aa7419e028a3200b.png"></p>
+<p>새로운 행사명 입력을 위해서는 <code>event_name</code> 파라미터 값이 꼭 필요합니다. 화면 중간의 Action 메뉴 패널을 확장해 파라미터 목록을 확인하고, REQUIRED 체크박스를 체크해 다음과 같이 <code>event_name</code>를 필수 파라미터로 설정합니다.</p>
+<p><img style="max-width: 624.00px" src="img/32957e595fa2270e.png"></p>
+<p>다음으로 사용자 응답을 입력합니다. 응답 메시지를 구성할 때 위 파라미터의 VALUE 값(<code>$event_name</code>)을 참조해 파라미터로 입력된 값을 활용할 수 있습니다. 이를 활용해 다음과 같이 Response를 추가합니다. </p>
+<table>
+<tr><td colspan="1" rowspan="1"><p><strong>Text response:</strong></p>
+</td><td colspan="1" rowspan="1"><p><em>&#34;$event_name (이/가)  추가되었습니다.&#34;</em></p>
+</td></tr>
+</table>
+<p><img style="max-width: 624.00px" src="img/4eab919f5c7b11f0.png"></p>
+<p>사용자 입력을 받기위한 액션 구성이 완료되었습니다. 기능이 정상적으로 동작하는지 테스트합니다.</p>
+<p>Dialogflow 시뮬레이터 창에 <strong><em>‘행사 정보 추가&#39;</em></strong> 라고 입력합니다. ‘<strong><em>새로운 행사 이름을 알려주세요</em></strong>.&#39; 라는 응답이 반환되며, <code>waiting_for_new_event_name</code> context가 설정된 것을 확인할 수 있습니다. </p>
+<p><img style="max-width: 294.04px" src="img/bdf449639efcd61b.png"></p>
+<p>뒤 이어 <strong><em>‘XXXXX 등록&#39;</em></strong> 이라고  입력합니다. <code>Waiting_for_new_event_name</code> context가 초기화되며, <strong><em>‘XXXXX 가 추가되었습니다.&#39;</em></strong>  라는 응답이 반환됩니다. 이 때 응답 <code>JSON</code>을 확인해보면 <code>parameters</code> 항목에 <code>&#34;event_name&#34;</code> 값이 지정되어 있는 것을 확인할 수 있습니다.</p>
+<p><img style="max-width: 296.50px" src="img/8c91a6b3340cc619.png"></p>
+<h2><strong>Webhook에서 사용자 입력 확인하기</strong></h2>
+<p>마지막으로 사용자 입력 파라미터값을 Webhook 코드 상에서 확인하고 이를 Firestore로 저장해봅니다. 우선 Cloud 함수 내에서 ‘행사 이름 입력&#39; 액션을 구분해 처리할 수 있도록 다음과 같이 <code>input.get_eventname</code> 이라고 액션 이름을 추가합니다.</p>
+<p><img style="max-width: 441.50px" src="img/7ce2a77a2fc2a40f.png"></p>
+<p>다음으로 화면 하단의 Fulfillment 패널을 확장해 Use Webhook 설정을 활성화 합니다.</p>
+<p><img style="max-width: 320.50px" src="img/7eefaf4bc9925ddb.png"></p>
+<p>SAVE 버튼을 클릭해 변경 사항을 저장합니다. </p>
+<p>다시 Cloud 함수의 <code>index.js</code> 파일을 엽니다. <code>actionHandlers</code> 구현에 <code>input.get_eventname</code>액션을 처리하기 위한 코드를 추가합니다. 사용자가 입력한 파라미터 값은 처음 사용자 요청을 파싱한 후 <code>parameters</code>에 저장됩니다. 이 후 코드 내에서 <code>parameters</code>의 프로퍼티 형식으로 원하는 파라미터 값을 가져올 수 있습니다. </p>
+<pre><code>// CODELAB: 아래 코드를 추가하세요
+// &#39;행사 이름 입력&#39; action intent has been matched
+&#39;input.get_eventname&#39;: () =&gt; {
+ // event_name 파라미터 값을 가져옵니다.
+ var eventName = parameters.event_name;
+
+ if (requestSource === googleAssistantRequest) {
+   sendGoogleResponse(eventName + &#39;이 추가되었습니다. from webhook&#39;);
+ } else {
+   sendResponse(eventName + &#39;이 추가되었습니다. from webhook&#39;);
+ }
+},</code></pre>
+<p>터미널에서 다음 명령을 실행해 변경된 Cloud 함수 코드를 배포합니다.</p>
+<pre>firebase deploy --only functions</pre>
+<p>배포가 완료된 후 AoG 시뮬레이터 혹은 Dialogflow 시뮬레이터에서 ‘<em>행사 이름 입력&#39;</em>  액션을 테스트하면, 다음과 같이 사용자가 입력한 파라미터가 사용된 응답을 확인 할 수 있습니다.</p>
+<p><img style="max-width: 371.33px" src="img/a1c74336133528f8.png"></p>
+<p>이제 사용자가 입력한 파라미터값을 Firestore에 저장하도록 기능을 확장합니다. 앞서 작성한 <code>input.todayevent</code> 핸들러 코드와 크게 다르지 않습니다. Firestore 클라이언트를 가져와 지정된 ID의 문서 참조를 불러온 후 <a href="https://cloud.google.com/nodejs/docs/reference/firestore/0.11.x/DocumentReference?hl=ko#set" target="_blank"><code>set</code></a> 메서드를 호출해 기존 행사 이름을 덮어 씁니다. 쓰기 작업이 완료되면 사용자에게 적절한 응답을 전송합니다.<br></p>
+<pre><code>// CODELAB: 아래 코드를 추가하세요
+// &#39;행사 이름 입력&#39; action intent has been matched
+&#39;input.get_eventname&#39;: () =&gt; {
+ // event_name 파라미터 값을 가져옵니다.
+ var eventName = parameters.event_name;
+ // Firestore 접근을 위해 Firestore 클라이언트를 가져옵니다.
+ var db = admin.firestore();
+ // events 컬렉션에 접근해 DOCUMENT_ID의 문서 참조를 가져옵니다.
+ var docRef = db.collection(&#39;events&#39;).doc(DOCUMENT_ID의);
+ // 문서 참조를 기반으로 사용자가 입력한 값으로 행사 이름을 덮어씁니다.
+ // 해당 작업은 비동기로 동작합니다.
+ docRef.set({ name: eventName}).then(result =&gt; {
+   if (requestSource === googleAssistantRequest) {
+     sendGoogleResponse(eventName + &#39;이 추가되었습니다. from webhook&#39;);
+   } else {
+     sendResponse(eventName + &#39;이 추가되었습니다. from webhook&#39;);
+   }
+ });
+},</code></pre>
+<p>수정된 코드를 다시 배포합니다. 배포가 완료된 후 AoG 시뮬레이터 혹은 Dialogflow 시뮬레이터에서 ‘<em>행사 이름 입력&#39;</em>  액션을 테스트하면 이전과 동일한 결과를 확인할 수 있습니다. 다만 이번 경우에는 실제 Firestore에 저장된 문서 데이터 값이 변경됩니다. 코드 동작을 테스트하기 위해서는 다음과 같이 Firebase 콘솔에서 문서 데이터를 직접 확인할 수 있습니다.</p>
+<p><img style="max-width: 232.50px" src="img/1c59d59bd62fdacd.png"></p>
+<p>혹은 Dialogflow 시뮬레이터에서 ‘<em>오늘 일정&#39;</em>  액션을 테스트하면 다음과 같이 새롭게 변경된 값으로 응답이 오는 것을 확인할 수 있습니다.</p>
+<p><img style="max-width: 354.53px" src="img/f8cc81427bfd46e2.png"></p>
+
+
+      </google-codelab-step>
+    
+      <google-codelab-step label="최종 테스트" duration="0">
+        <p><img style="max-width: 500.00px" src="img/68ccd1c0a5a44e0b.png"></p>
+<p>축하합니다! 준비된 코드랩의 모든 과정이 완료되었습니다. 이번 코드랩 과정을 통해 Actions on Google 플랫폼 위에서 어스시턴트 앱을 만들 때 필요한 기본적인 요소들을 한 번씩 살펴보았습니다.</p>
+<ol type="1" start="1">
+<li>Actions on Google 플랫폼위에서 어시스턴트 앱을 생성했습니다.</li>
+<li>주요 대화 흐름을 Dialogflow를 활용해 작성했습니다.</li>
+<li>Firebase 용 Cloud 함수를 활용 백엔드 서비스를 구축했습니다. </li>
+<li>외부 데이터 소스로 Firestore와 Cloud 함수를 연동했습니다.</li>
+<li>사용자 입력을 받아 이를 저장하고, 입력된 결과를 응답에 활용하는 코드를 구현하였습니다.</li>
+</ol>
+<p>이제 Android Things 기반의 Google 어시스턴트, Android 스마트폰, 어시스턴트 시뮬레이터 상에서 여러분의 어시스턴트 앱을 테스트해세요. 그리고 새로운 아이디어를 더해 여러분만의 어시스턴트 앱을 만들어 보세요!! 새로운 어시스턴트 앱은 언제나 환영입니다!<br></p>
+<h2><strong>개인 정보 보호를 위해 설치된 앱을 삭제해주세요.</strong></h2>
+<p>마지막으로, 코드랩을 마무리하기 전에 Android Things 개발 킷을 반납해야합니다. 개발 킷 반납전에 현재 설치되어 있는 앱을 삭제하는 것을 잊지마세요!!  터미널을 열고 다음 adb 명령어로 Android Things에 설치 된 샘플 앱을 삭제합니다.</p>
+<pre><code>$adb uninstall com.example.androidthings.assistant</code></pre>
+<aside class="warning"><p>샘플앱에 포함되어 있는 <code>credentials.json</code> 파일을 통해 악의적 사용자가 여러분의 계정으로 접근할 수 있습니다.</p>
+</aside>
+
+
+      </google-codelab-step>
+    
+  </google-codelab>
+
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-49880327-14', 'auto');
+
+    (function() {
+      var gaCodelab = '';
+      if (gaCodelab) {
+        ga('create', gaCodelab, 'auto', {name: 'codelab'});
+      }
+
+      var gaView;
+      var parts = location.search.substring(1).split('&');
+      for (var i = 0; i < parts.length; i++) {
+        var param = parts[i].split('=');
+        if (param[0] === 'viewga') {
+          gaView = param[1];
+          break;
+        }
+      }
+      if (gaView && gaView !== gaCodelab) {
+        ga('create', gaView, 'auto', {name: 'view'});
+      }
+    })();
+  </script>
+
+</body>
+</html>
