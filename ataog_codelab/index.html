@@ -6,20 +6,26 @@
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
   <meta name="theme-color" content="#4F7DC9">
   <meta charset="UTF-8">
-  <title>Android Things x Actions on Google</title>
-  <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+  <title>Android Things & Actions on Google</title>
+  <script src="../bower_components/webcomponentsjs/webcomponents-lite.min.js" async></script>
+  <script>
+    window.Polymer = {
+      dom: 'shadow',
+      lazyRegister: 'max',
+      useNativeCSSProperties: true
+    };
+  </script>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,300,400italic,500,700|Roboto+Mono:400,700">
   <link rel="import" href="../elements/codelab.html">
-  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Code+Pro:400|Roboto:400,300,400italic,500,700|Roboto+Mono">
   <style is="custom-style">
     body {
-      font-family: "Roboto",sans-serif;
+      font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial;
       background: var(--google-codelab-background, --paper-grey-300);
     }
   </style>
-  
-</head>
-<body unresolved class="fullbleed">
+</head>  
 
+<body>
   <google-codelab title="Android Things & Actions on Google"
                   environment="web"
                   feedback-link="">
