@@ -333,7 +333,7 @@ Device Model Id: xxxxxx
         Device Type: action.devices.types.LIGHT
 No traits</pre>
 <h2><strong>DeviceConfig</strong></h2>
-<p>다음으로 앞서 등록한 고유 식별자 및 사용 언어를 설정합니다. <code>AssistantActivity.java</code> 코드 내에서 <code>EmbeddedAssistant.Builde</code>r를 통해 <code>EmbeddedAssistant</code> 객체를 생성하는 부분을 찾습니다. 아래 주석 및 코드 내용을 참고해 어시스턴트 언어를 한국어로 설정하고,  앞서 등록한 <code>model_id</code>를 등록하고, 해당 디바이스를 식별할 수 있는 임의의 <code>InstanceId</code> 값을 설정하도록 코드를 수정합니다.</p>
+<p>다음으로 앞서 등록한 고유 식별자 및 사용 언어를 설정합니다. <code>AssistantActivity.java</code> 코드 내에서 <code>EmbeddedAssistant.Builder</code>를 통해 <code>EmbeddedAssistant</code> 객체를 생성하는 부분을 찾습니다. 아래 주석 및 코드 내용을 참고해 어시스턴트 언어를 한국어로 설정하고,  앞서 등록한 <code>model_id</code>를 등록하고, 해당 디바이스를 식별할 수 있는 임의의 <code>InstanceId</code> 값을 설정하도록 코드를 수정합니다.</p>
 <pre><code>mEmbeddedAssistant = new EmbeddedAssistant.Builder()
        .setCredentials(userCredentials)
        .setAudioInputDevice(audioInputDevice)
